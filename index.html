@@ -135,10 +135,10 @@
     .floating-target .target-title { font-size: 1.15rem; font-weight: 700; margin-top: 8px; }
     .floating-target .target-sub { margin-top: 8px; color: #e2e8f0; font-size: 0.92rem; line-height: 1.45; }
     .paragraph-block { display: grid; gap: 12px; margin-bottom: 20px; }
-    .sentence-card { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: white; }
-    .sentence-card.locked { border-color: var(--accent); background: #f8fafc; }
-    .sentence-tag { display: inline-flex; padding: 4px 8px; border-radius: 999px; background: #e2e8f0; font-size: 0.78rem; font-weight: 700; margin-bottom: 8px; }
-    .move-stack { display: grid; gap: 8px; }
+    .sentence-card { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: white; transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease; }
+    .sentence-card.anchor { background: #0f172a; color: white; border-color: #0f172a; }
+    .sentence-card.swapping { transform: scale(1.03); box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18); }
+    .move-stack { display: grid; gap: 8px; align-self: stretch; }
     .move-btn { width: 46px; height: 46px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
     .feedback { margin-top: 12px; font-weight: 600; }
     .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.55); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
@@ -195,27 +195,21 @@
       "The organization helps visitors predict where a matching item will be."
     ];
     const PARAGRAPH_SENTENCES = [
-      "Visitors enter the science museum through a bright central hall that introduces the main theme of innovation.",
-      "From there, each wing focuses on a related idea, such as energy, transportation, or communication, so the exhibits feel connected.",
-      "Inside the transportation wing, one display shows a timeline of bicycles, cars, and trains to illustrate how each invention solved a different problem."
+      "New York is a noisy city.",
+      "Traffic, sirens, and crowded sidewalks create a constant layer of sound from morning until late at night.",
+      "For example, one person walking through Times Square might hear taxi horns, street performers, construction drills, and dozens of conversations all at once."
     ];
-    const PARAGRAPH_PRACTICE = {
-      1: [
-        { id: "p1-topic", type: "topic", locked: true, text: "School gardens can teach students how communities work together." },
-        { id: "p1-support", type: "support", locked: false, text: "They give each class a shared job, such as planting, watering, and checking what the plants need." },
-        { id: "p1-example", type: "example", locked: false, text: "For example, one class might measure tomato growth each week and record the changes on a chart." }
-      ],
-      2: [
-        { id: "p2-support", type: "support", locked: true, text: "A strong layout first names the big section, then narrows the search with smaller grouped displays." },
-        { id: "p2-topic", type: "topic", locked: false, text: "Clear museum labels help visitors move from broad ideas to precise information." },
-        { id: "p2-example", type: "example", locked: false, text: "For instance, a visitor can follow Kitchen → Cookware → pans instead of scanning every room at once." }
-      ],
-      3: [
-        { id: "p3-example", type: "example", locked: true, text: "For example, a writer could introduce recycling, explain how sorting works, and then describe one classroom recycling station." },
-        { id: "p3-topic", type: "topic", locked: false, text: "Good paragraphs organize ideas in a way that helps readers follow the writer’s thinking." },
-        { id: "p3-support", type: "support", locked: false, text: "Writers often begin with a main point, add a supporting detail, and end with a specific illustration." }
-      ]
-    };
+    const PRACTICE_SENTENCES = [
+      { id: "p1-topic", paragraph: 1, type: "topic", anchor: true, text: "School gardens can teach students how communities work together." },
+      { id: "p1-support", paragraph: 1, type: "support", anchor: false, text: "They give each class a shared job, such as planting, watering, and checking what the plants need." },
+      { id: "p1-example", paragraph: 1, type: "example", anchor: false, text: "For example, one class might measure tomato growth each week and record the changes on a chart." },
+      { id: "p2-topic", paragraph: 2, type: "topic", anchor: false, text: "Clear museum labels help visitors move from broad ideas to precise information." },
+      { id: "p2-support", paragraph: 2, type: "support", anchor: true, text: "A strong layout first names the big section, then narrows the search with smaller grouped displays." },
+      { id: "p2-example", paragraph: 2, type: "example", anchor: false, text: "For instance, a visitor can follow Kitchen → Cookware → pans instead of scanning every room at once." },
+      { id: "p3-topic", paragraph: 3, type: "topic", anchor: false, text: "Good paragraphs organize ideas in a way that helps readers follow the writer’s thinking." },
+      { id: "p3-support", paragraph: 3, type: "support", anchor: false, text: "Writers often begin with a main point, add a supporting detail, and end with a specific illustration." },
+      { id: "p3-example", paragraph: 3, type: "example", anchor: true, text: "For example, a writer could introduce recycling, explain how sorting works, and then describe one classroom recycling station." }
+    ];
 
     let state = {
       activeMuseumIndex: 0,
@@ -232,11 +226,11 @@
       activeTarget: null,
       highlightedItem: null,
       modal: null,
-      paragraphOverallRating: 0,
       sentenceRatings: [0, 0, 0],
       structureChoice: null,
       structureWhy: "",
-      paragraphOrders: {}
+      practiceOrder: [],
+      swappingSentenceId: null
     };
 
     function shuffle(array) { const arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
@@ -248,14 +242,10 @@
     function renderStars(value, attrs) { return [1,2,3,4,5].map(n => `<button class="star-btn ${value >= n ? 'active' : ''}" ${attrs(n)}>★</button>`).join(''); }
     function getMuseumIndexById(id) { return MUSEUMS.findIndex(museum => museum.id === id); }
 
-    function createInitialParagraphOrders() {
-      const orders = {};
-      Object.entries(PARAGRAPH_PRACTICE).forEach(([key, sentences]) => {
-        const locked = sentences.find(sentence => sentence.locked);
-        const others = shuffle(sentences.filter(sentence => !sentence.locked));
-        orders[key] = [locked, ...others];
-      });
-      return orders;
+    function createInitialPracticeOrder() {
+      const anchors = [1, 2, 3].map(paragraph => PRACTICE_SENTENCES.find(item => item.anchor && item.paragraph === paragraph));
+      const others = shuffle(PRACTICE_SENTENCES.filter(sentence => !sentence.anchor));
+      return [anchors[0], others[0], others[1], others[2], anchors[1], others[3], others[4], others[5], anchors[2]];
     }
 
     function buildStructuredMuseum(labelMode) {
@@ -322,11 +312,11 @@
       state.gameState = "idle";
       state.highlightedItem = null;
       state.modal = null;
-      state.paragraphOverallRating = 0;
       state.sentenceRatings = [0, 0, 0];
       state.structureChoice = null;
       state.structureWhy = "";
-      state.paragraphOrders = createInitialParagraphOrders();
+      state.practiceOrder = createInitialPracticeOrder();
+      state.swappingSentenceId = null;
       resetNavigation();
       ensureLayouts();
       render();
@@ -401,18 +391,21 @@
       return `<section class="section-card" id="reflection-section"><div class="section-pad"><h2 class="title">Compare the museum structures</h2><div class="subtitle">Rate each museum’s difficulty and check which organizational or presentation schemes match each museum.</div></div><div class="section-body"><div class="summary-grid">${MUSEUMS.map(museum => `<div class="summary-card"><div class="micro-label">${museum.name}</div><strong>${state.museumResults[museum.id] ? formatTime(state.museumResults[museum.id].time) : '--:--'}</strong><div class="subtitle">${state.museumResults[museum.id] ? `Target: ${escapeHTML(state.museumResults[museum.id].target)}` : 'Complete the museum to record a time.'}</div></div>`).join('')}</div><div class="table-card star-table"><div class="label-row">⭐ Rate how difficult it was to find the target in each museum</div><table><thead><tr><th>Museum</th><th>Difficulty rating</th></tr></thead><tbody>${MUSEUMS.map(museum => `<tr><td>${museum.name}</td><td><div class="star-row">${renderStars(state.museumDifficultyRatings[museum.id], n => `data-action="pick-museum-difficulty" data-museum-id="${museum.id}" data-stars="${n}" ${!allDone ? 'disabled' : ''}`)}</div></td></tr>`).join('')}</tbody></table></div><div class="table-card"><div class="label-row">☑️ Check the scheme(s) that match each museum</div><table><thead><tr><th>Organization / presentation scheme</th>${MUSEUMS.map(museum => `<th class="checkbox-cell">${museum.shortLabel}</th>`).join('')}</tr></thead><tbody>${COMPARISON_SCHEMES.map(scheme => `<tr><td>${escapeHTML(scheme)}</td>${MUSEUMS.map(museum => { const checked = state.comparisonChecks[scheme].includes(museum.id); return `<td class="checkbox-cell"><input type="checkbox" data-action="toggle-comparison" data-scheme="${escapeHTML(scheme)}" data-museum-id="${museum.id}" ${checked ? 'checked' : ''} ${!allDone ? 'disabled' : ''}></td>`; }).join('')}</tr>`).join('')}</tbody></table><div class="subtitle">Include both positive and negative schemes to show how the museums differ.</div></div></div></section>`;
     }
     function renderWritingSection() {
-      return `<section class="section-card" id="writing-section"><div class="section-pad"><h2 class="title">Connect the search to paragraph structure</h2><div class="subtitle">Notice how the paragraph grows more detailed from sentence to sentence.</div></div><div class="section-body"><div class="prompt-box"><div class="label-row">📘 Example paragraph</div><p>${PARAGRAPH_SENTENCES.join(' ')}</p></div><div class="prompt-box"><div class="label-row">⭐ Overall level of detail</div><div class="star-row">${renderStars(state.paragraphOverallRating, n => `data-action="pick-overall-stars" data-stars="${n}"`)}</div><div class="subtitle">The star buttons resize automatically to fit the viewport while still showing all five levels.</div></div><div class="table-card star-table"><div class="label-row">📈 Rate each sentence as the detail increases</div><table><thead><tr><th>Sentence</th><th>Detail rating</th></tr></thead><tbody>${PARAGRAPH_SENTENCES.map((sentence, index) => `<tr><td><strong>Sentence ${index + 1}</strong><div class="subtitle">${escapeHTML(sentence)}</div></td><td><div class="star-row">${renderStars(state.sentenceRatings[index], n => `data-action="pick-sentence-stars" data-index="${index}" data-stars="${n}"`)}</div></td></tr>`).join('')}</tbody></table></div><div class="prompt-box"><div class="label-row">🏛️ Which museum structure does the writing resemble?</div><div class="pill-row">${MUSEUMS.map(museum => `<button class="pill-btn ${state.structureChoice === museum.id ? 'active' : ''}" data-action="pick-structure" data-museum-id="${museum.id}">${museum.name}</button>`).join('')}</div><textarea data-action="structure-why" placeholder="Why is the paragraph structured this way?">${escapeHTML(state.structureWhy)}</textarea><div class="subtitle">Think about which museum most clearly moves from a broad label to increasingly specific levels of detail.</div></div></div></section>`;
+      return `<section class="section-card" id="writing-section"><div class="section-pad"><h2 class="title">Connect the search to paragraph structure</h2><div class="subtitle">Notice how the paragraph grows more detailed from sentence to sentence.</div></div><div class="section-body"><div class="prompt-box"><div class="label-row">📘 Example paragraph</div><p>${PARAGRAPH_SENTENCES.join(' ')}</p></div><div class="table-card star-table"><div class="label-row">📈 Rate each sentence as the detail increases</div><table><thead><tr><th>Sentence</th><th>Detail rating</th></tr></thead><tbody>${PARAGRAPH_SENTENCES.map((sentence, index) => `<tr><td><strong>Sentence ${index + 1}</strong><div class="subtitle">${escapeHTML(sentence)}</div></td><td><div class="star-row">${renderStars(state.sentenceRatings[index], n => `data-action="pick-sentence-stars" data-index="${index}" data-stars="${n}"`)}</div></td></tr>`).join('')}</tbody></table></div><div class="prompt-box"><div class="label-row">🏛️ Which museum structure does the writing resemble?</div><div class="pill-row">${MUSEUMS.map(museum => `<button class="pill-btn ${state.structureChoice === museum.id ? 'active' : ''}" data-action="pick-structure" data-museum-id="${museum.id}">${museum.name}</button>`).join('')}</div><textarea data-action="structure-why" placeholder="Why is the paragraph structured this way?">${escapeHTML(state.structureWhy)}</textarea><div class="subtitle">Think about which museum most clearly moves from a broad label to increasingly specific levels of detail.</div></div></div></section>`;
     }
     function renderPracticeParagraph(paragraphNumber) {
-      const sentences = state.paragraphOrders[String(paragraphNumber)];
-      const anchorType = paragraphNumber === 1 ? 'topic' : paragraphNumber === 2 ? 'support' : 'example';
-      return `<div class="paragraph-block"><div class="label-row">🧩 Paragraph ${paragraphNumber}</div><div class="subtitle">This paragraph keeps the <strong>${anchorType}</strong> sentence locked. Use the arrows to arrange the other two sentences into the correct order.</div>${sentences.map((sentence, index) => `<div class="sentence-card ${sentence.locked ? 'locked' : ''}"><div><div class="sentence-tag">${sentence.locked ? 'Locked anchor' : 'Moveable sentence'}</div><div>${escapeHTML(sentence.text)}</div></div><div class="move-stack">${sentence.locked ? '' : `<button class="move-btn" data-action="move-sentence" data-paragraph="${paragraphNumber}" data-index="${index}" data-direction="up">↑</button><button class="move-btn" data-action="move-sentence" data-paragraph="${paragraphNumber}" data-index="${index}" data-direction="down">↓</button>`}</div></div>`).join('')}</div>`;
+      const start = (paragraphNumber - 1) * 3;
+      const sentences = state.practiceOrder.slice(start, start + 3);
+      return `<div class="paragraph-block"><div class="label-row">🧩 Paragraph ${paragraphNumber}</div>${sentences.map((sentence, index) => { const globalIndex = start + index; return `<div class="sentence-card ${sentence.anchor ? 'anchor' : ''} ${state.swappingSentenceId === sentence.id ? 'swapping' : ''}"><div>${escapeHTML(sentence.text)}</div><div class="move-stack">${sentence.anchor ? '' : `<button class="move-btn" data-action="move-sentence" data-index="${globalIndex}" data-direction="up">↑</button><button class="move-btn" data-action="move-sentence" data-index="${globalIndex}" data-direction="down">↓</button>`}</div></div>`; }).join('')}</div>`;
     }
     function paragraphPracticeCorrect() {
-      return Object.entries(PARAGRAPH_PRACTICE).every(([key, original]) => state.paragraphOrders[key].map(sentence => sentence.type).join('|') === original.map(sentence => sentence.type).join('|'));
+      return [0,1,2].every(group => {
+        const slice = state.practiceOrder.slice(group * 3, group * 3 + 3);
+        return slice.map(sentence => sentence.paragraph).every(paragraph => paragraph === group + 1) && slice.map(sentence => sentence.type).join('|') === 'topic|support|example';
+      });
     }
     function renderPracticeSection() {
-      return `<section class="section-card" id="drag-section"><div class="section-pad"><h2 class="title">Sentence ordering practice</h2><div class="subtitle">Instead of drag and drop, reorder the sentences vertically so each paragraph reads from topic sentence to supporting detail to example.</div></div><div class="section-body">${[1,2,3].map(renderPracticeParagraph).join('')}<div class="prompt-box"><div class="feedback">${paragraphPracticeCorrect() ? 'Correct: each paragraph now moves from topic sentence to supporting detail to example.' : 'Use the up/down arrows to put each paragraph in the order topic → supporting detail → example.'}</div></div></div></section>`;
+      return `<section class="section-card" id="drag-section"><div class="section-pad"><h2 class="title">Sentence ordering practice</h2><div class="subtitle">Reorder all nine sentences so relevant ideas stay in the same paragraph and each paragraph reads from topic sentence to supporting detail to example.</div></div><div class="section-body">${[1,2,3].map(renderPracticeParagraph).join('')}<div class="prompt-box"><div class="feedback">${paragraphPracticeCorrect() ? 'Correct: the sentences are grouped into the right paragraphs and arranged from topic sentence to supporting detail to example.' : 'Use the up/down arrows to regroup related ideas and arrange each paragraph from topic sentence to supporting detail to example.'}</div></div></div></section>`;
     }
     function renderModal() {
       if (!state.modal) return '';
@@ -421,14 +414,16 @@
       }
       return `<div class="modal-backdrop"><div class="modal"><h3>${state.modal.museumName} complete</h3><p>You found <strong>${escapeHTML(state.modal.target)}</strong> in <strong>${formatTime(state.modal.time)}</strong>.</p><p>The item remains highlighted in the section view so students can connect the route with the final result.</p><div class="button-row" style="margin-top:20px"><button class="btn btn-primary" data-action="proceed-modal">${state.modal.allDone ? 'Go to the next section' : `Go to ${state.modal.nextMuseumName}`}</button><button class="btn" data-action="close-modal">Stay here</button></div></div></div>`;
     }
-    function moveSentence(paragraph, index, direction) {
-      const arr = [...state.paragraphOrders[String(paragraph)]];
+    function moveSentence(index, direction) {
+      const arr = [...state.practiceOrder];
       const nextIndex = direction === 'up' ? index - 1 : index + 1;
       if (nextIndex < 0 || nextIndex >= arr.length) return;
-      if (arr[index].locked || arr[nextIndex].locked) return;
+      if (arr[index].anchor || arr[nextIndex].anchor) return;
+      state.swappingSentenceId = arr[index].id;
       [arr[index], arr[nextIndex]] = [arr[nextIndex], arr[index]];
-      state.paragraphOrders[String(paragraph)] = arr;
+      state.practiceOrder = arr;
       render();
+      setTimeout(() => { state.swappingSentenceId = null; render(); }, 220);
     }
     function toggleComparison(scheme, museumId, checked) {
       const current = new Set(state.comparisonChecks[scheme] || []);
@@ -449,19 +444,18 @@
       document.querySelectorAll('[data-action="close-modal"]').forEach(btn => btn.addEventListener('click', () => { state.modal = null; render(); }));
       document.querySelectorAll('[data-action="pick-museum-difficulty"]').forEach(btn => btn.addEventListener('click', () => { state.museumDifficultyRatings[btn.dataset.museumId] = Number(btn.dataset.stars); render(); }));
       document.querySelectorAll('[data-action="toggle-comparison"]').forEach(input => input.addEventListener('change', e => { toggleComparison(e.target.dataset.scheme, e.target.dataset.museumId, e.target.checked); }));
-      document.querySelectorAll('[data-action="pick-overall-stars"]').forEach(btn => btn.addEventListener('click', () => { state.paragraphOverallRating = Number(btn.dataset.stars); render(); }));
       document.querySelectorAll('[data-action="pick-sentence-stars"]').forEach(btn => btn.addEventListener('click', () => { state.sentenceRatings[Number(btn.dataset.index)] = Number(btn.dataset.stars); render(); }));
       document.querySelectorAll('[data-action="pick-structure"]').forEach(btn => btn.addEventListener('click', () => { state.structureChoice = btn.dataset.museumId; render(); }));
       document.querySelectorAll('[data-action="structure-why"]').forEach(el => el.addEventListener('input', e => { state.structureWhy = e.target.value; }));
-      document.querySelectorAll('[data-action="move-sentence"]').forEach(btn => btn.addEventListener('click', () => moveSentence(btn.dataset.paragraph, Number(btn.dataset.index), btn.dataset.direction)));
+      document.querySelectorAll('[data-action="move-sentence"]').forEach(btn => btn.addEventListener('click', () => moveSentence(Number(btn.dataset.index), btn.dataset.direction)));
     }
     function render() {
       ensureLayouts();
-      if (!Object.keys(state.paragraphOrders).length) state.paragraphOrders = createInitialParagraphOrders();
+      if (!state.practiceOrder.length) state.practiceOrder = createInitialPracticeOrder();
       document.getElementById('app').innerHTML = `<div class="app-stack"><div class="app-shell"><aside class="panel">${renderSidebar()}</aside><main class="panel">${renderMain()}</main></div>${renderReflectionSection()}${renderWritingSection()}${renderPracticeSection()}${renderFloatingTarget()}${renderModal()}</div>`;
       attachEvents();
     }
-    state.paragraphOrders = createInitialParagraphOrders();
+    state.practiceOrder = createInitialPracticeOrder();
     ensureLayouts();
     render();
   </script>
