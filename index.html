@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Museum Search Challenge</title>
+  <title>博物館搜尋挑戰</title>
   <style>
     :root {
       --bg1: #f1f5f9;
       --bg2: #e2e8f0;
-      --card: #ffffff;
       --muted: #f8fafc;
       --line: #cbd5e1;
       --wall: #334155;
@@ -17,16 +16,13 @@
       --corridor: #cbd5e1;
       --corridor-dark: #94a3b8;
       --accent: #0f172a;
-      --accent-text: #ffffff;
       --badge: #e2e8f0;
+      --success: #16a34a;
+      --highlight: #fef08a;
       --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      --shadow-strong: 0 10px 24px rgba(15, 23, 42, 0.08);
-      --radius-xl: 32px;
-      --radius-lg: 24px;
-      --radius-md: 18px;
     }
-
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     html, body { margin: 0; padding: 0; }
     body {
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -35,505 +31,136 @@
       min-height: 100vh;
       padding: 16px;
     }
-
-    .app-shell {
-      max-width: 1280px;
-      margin: 0 auto;
-      display: grid;
-      gap: 24px;
-      grid-template-columns: 320px 1fr;
-    }
-
-    .panel {
-      background: rgba(255,255,255,0.96);
-      border-radius: 28px;
-      box-shadow: 0 18px 40px rgba(15,23,42,0.12);
-      overflow: hidden;
-    }
-
-    .panel-header {
-      padding: 24px 24px 0 24px;
-    }
-
-    .panel-body {
-      padding: 24px;
-    }
-
-    .title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin: 0;
-    }
-
-    .info-box {
-      background: var(--muted);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 20px;
-    }
-
-    .info-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #334155;
-      margin-bottom: 12px;
-    }
-
-    .badge-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--badge);
-      color: #334155;
-      font-size: 0.8rem;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .badge.found, .badge.dark {
-      background: var(--accent);
-      color: white;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 10px;
-      background: #e2e8f0;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: var(--accent);
-      width: 0%;
-      transition: width 0.2s ease;
-    }
-
-    .progress-meta {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
-      color: #475569;
-      margin-bottom: 10px;
-    }
-
-    .timer-value {
-      font-size: 1.15rem;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .button-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    button {
-      font: inherit;
-      cursor: pointer;
-      border: none;
-    }
-
-    .btn {
-      border-radius: 18px;
-      padding: 12px 16px;
-      font-weight: 600;
+    .app-stack { max-width: 1280px; margin: 0 auto; display: grid; gap: 24px; }
+    .app-shell { display: grid; gap: 24px; grid-template-columns: 320px 1fr; }
+    .panel, .section-card { background: rgba(255,255,255,0.97); border-radius: 28px; box-shadow: 0 18px 40px rgba(15,23,42,0.12); overflow: hidden; }
+    .panel-header, .section-pad { padding: 24px 24px 0; }
+    .panel-body, .section-body { padding: 24px; }
+    .title { font-size: 1.5rem; font-weight: 700; margin: 0; }
+    .subtitle { color: var(--subtext); margin-top: 8px; line-height: 1.5; }
+    .info-box, .prompt-box, .table-card { background: var(--muted); border-radius: 18px; padding: 16px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+    .info-label, .label-row { display: flex; align-個物品: center; gap: 8px; font-size: 0.9rem; font-weight: 700; color: #334155; margin-bottom: 12px; }
+    .badge-list, .pill-row, .star-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .badge { display: inline-flex; align-個物品: center; justify-content: center; padding: 6px 10px; border-radius: 999px; background: var(--badge); color: #334155; font-size: 0.8rem; font-weight: 700; }
+    .badge.dark, .pill-btn.active { background: var(--accent); color: white; }
+    .badge.done { background: #dcfce7; color: #166534; }
+    .progress-meta { display: flex; justify-content: space-between; gap: 12px; font-size: 0.9rem; color: #475569; margin-bottom: 10px; }
+    .progress-bar { width: 100%; height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); transition: width 0.2s ease; }
+    .timer-value { font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    button { font: inherit; cursor: pointer; border: none; }
+    .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn, .pill-btn, .star-btn, .move-btn {
+      border-radius: 18px; padding: 12px 16px; font-weight: 600; border: 1px solid var(--line); background: white; color: #334155;
       transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
     }
-
-    .btn:hover { transform: translateY(-1px); }
-    .btn:active { transform: scale(0.99); }
-
-    .btn-primary {
-      background: var(--accent);
-      color: white;
-    }
-
-    .btn-secondary {
-      background: white;
-      color: #334155;
-      border: 1px solid var(--line);
-    }
-
-    .main-panel-header {
-      padding: 20px 24px;
-      border-bottom: 1px solid #e2e8f0;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(8px);
-    }
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    .top-actions, .museum-tabs, .view-badges {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .pill-btn {
-      border-radius: 999px;
-      padding: 9px 16px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      border: 1px solid var(--line);
-      background: white;
-      color: #334155;
-    }
-
-    .pill-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: white;
-    }
-
-    .pill-btn:disabled {
-      opacity: 0.45;
-      cursor: default;
-      transform: none;
-    }
-
-    .map-wrapper {
-      padding: 20px 24px 24px 24px;
-    }
-
-    .blueprint {
-      position: relative;
-      overflow: hidden;
-      border-radius: 32px;
-      border: 4px solid var(--wall);
-      background: var(--bg1);
-      padding: 16px 16px 20px 16px;
-      box-shadow: inset 0 2px 10px rgba(15,23,42,0.08);
-    }
-
-    .blueprint::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at top left, rgba(255,255,255,0.7), transparent 35%),
-        linear-gradient(to right, rgba(148,163,184,0.12) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(148,163,184,0.12) 1px, transparent 1px);
-      background-size: auto, 28px 28px, 28px 28px;
-    }
-
-    .blueprint.simple-grid::before {
-      background:
-        linear-gradient(to right, rgba(148,163,184,0.1) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(148,163,184,0.1) 1px, transparent 1px);
-      background-size: 24px 24px, 24px 24px;
-    }
-
+    .btn:hover, .pill-btn:hover, .star-btn:hover, .move-btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn:disabled, .pill-btn:disabled, .star-btn:disabled, .move-btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+    .star-btn.active, .pill-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+    .main-panel-header { padding: 20px 24px; border-bottom: 1px solid #e2e8f0; background: rgba(255,255,255,0.85); }
+    .header-top, .summary-grid { display: flex; justify-content: space-between; align-個物品: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    .museum-tabs, .view-badges, .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill-btn { border-radius: 999px; padding: 9px 16px; font-size: 0.9rem; font-weight: 700; }
+    .map-wrapper { padding: 20px 24px 24px; }
+    .blueprint { position: relative; overflow: hidden; border-radius: 32px; border: 4px solid var(--wall); background: var(--bg1); padding: 16px 16px 20px; box-shadow: inset 0 2px 10px rgba(15,23,42,0.08); }
+    .blueprint::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at top left, rgba(255,255,255,0.7), transparent 35%), linear-gradient(to right, rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.12) 1px, transparent 1px); background-size: auto, 28px 28px, 28px 28px; }
+    .blueprint.simple-grid::before { background: linear-gradient(to right, rgba(148,163,184,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.1) 1px, transparent 1px); background-size: 24px 24px, 24px 24px; }
     .blueprint > * { position: relative; }
-
-    .lobby {
-      position: relative;
-      margin-bottom: 20px;
-      border-radius: 32px;
-      border: 4px solid var(--wall);
-      background: white;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(15,23,42,0.05);
-    }
-
-    .lobby::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 100%;
-      transform: translateX(-50%);
-      width: 24px;
-      height: 40px;
-      background: var(--corridor);
-      border-left: 4px solid var(--wall);
-      border-right: 4px solid var(--wall);
-    }
-
-    .micro-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.35em;
-      color: var(--subtext);
-    }
-
-    .subtitle-text {
-      margin-top: 8px;
-      font-size: 0.92rem;
-      color: var(--subtext);
-    }
-
-    .section-title {
-      margin-top: 8px;
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-
-    .two-wing {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: 1fr 88px 1fr;
-      align-items: stretch;
-    }
-
-    .wing {
-      display: grid;
-      gap: 16px;
-    }
-
-    .corridor-vertical {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      border-radius: 32px;
-      border: 4px solid var(--wall);
-      background: var(--corridor-dark);
-      color: #334155;
-      padding: 16px 12px;
-      text-align: center;
-      box-shadow: inset 0 2px 6px rgba(15,23,42,0.12);
-    }
-
-    .corridor-vertical .vertical-text {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      text-transform: uppercase;
-      letter-spacing: 0.2em;
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #1e293b;
-    }
-
-    .connector-row-left,
-    .connector-row-right {
-      display: grid;
-      align-items: center;
-      gap: 0;
-    }
-
+    .lobby, .section-header-box { position: relative; margin-bottom: 20px; border-radius: 32px; border: 4px solid var(--wall); background: white; padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(15,23,42,0.05); }
+    .lobby::after { content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); width: 24px; height: 40px; background: var(--corridor); border-left: 4px solid var(--wall); border-right: 4px solid var(--wall); }
+    .micro-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.35em; color: var(--subtext); }
+    .section-title { margin-top: 8px; font-size: 1.25rem; font-weight: 700; }
+    .subtitle-text { margin-top: 8px; font-size: 0.92rem; color: var(--subtext); }
+    .two-wing { display: grid; gap: 16px; grid-template-columns: 1fr 88px 1fr; align-個物品: stretch; }
+    .wing { display: grid; gap: 16px; }
+    .corridor-vertical { display: flex; flex-direction: column; align-個物品: center; justify-content: space-between; border-radius: 32px; border: 4px solid var(--wall); background: var(--corridor-dark); padding: 16px 12px; text-align: center; }
+    .vertical-text { writing-mode: vertical-rl; transform: rotate(180deg); text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.9rem; font-weight: 700; color: #1e293b; }
+    .connector-row-left, .connector-row-right { display: grid; align-個物品: center; gap: 0; }
     .connector-row-left { grid-template-columns: 1fr 52px; }
     .connector-row-right { grid-template-columns: 52px 1fr; }
-
-    .connector-left,
-    .connector-right {
-      height: 20px;
-      background: var(--corridor);
-    }
-
-    .connector-left {
-      border-top: 4px solid var(--wall);
-      border-bottom: 4px solid var(--wall);
-      border-left: 4px solid var(--wall);
-      border-top-left-radius: 999px;
-      border-bottom-left-radius: 999px;
-    }
-
-    .connector-right {
-      border-top: 4px solid var(--wall);
-      border-bottom: 4px solid var(--wall);
-      border-right: 4px solid var(--wall);
-      border-top-right-radius: 999px;
-      border-bottom-right-radius: 999px;
-    }
-
-    .floor-room {
-      position: relative;
-      width: 100%;
-      min-height: 165px;
-      border: 4px solid var(--wall);
-      background: rgba(255,255,255,0.96);
-      text-align: left;
-      padding: 16px;
-      box-shadow: var(--shadow);
-      overflow: visible;
-    }
-
-    .floor-room:hover {
-      background: white;
-      transform: scale(1.015);
-    }
-
-    .floor-room:active { transform: scale(0.985); }
-
-    .room-outline {
-      position: absolute;
-      inset: 8px;
-      border: 1px dashed #cbd5e1;
-      border-radius: 20px;
-      pointer-events: none;
-    }
-
-    .door-right, .door-left, .door-top, .door-bottom {
-      position: absolute;
-      background: var(--bg1);
-    }
-
-    .door-right {
-      right: -2px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 12px;
-      height: 64px;
-      border-top: 4px solid var(--wall);
-      border-bottom: 4px solid var(--wall);
-      border-left: 4px solid var(--wall);
-      border-top-left-radius: 999px;
-      border-bottom-left-radius: 999px;
-    }
-
-    .door-left {
-      left: -2px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 12px;
-      height: 64px;
-      border-top: 4px solid var(--wall);
-      border-bottom: 4px solid var(--wall);
-      border-right: 4px solid var(--wall);
-      border-top-right-radius: 999px;
-      border-bottom-right-radius: 999px;
-    }
-
-    .door-top {
-      left: 50%;
-      top: -2px;
-      transform: translateX(-50%);
-      width: 64px;
-      height: 12px;
-      border-left: 4px solid var(--wall);
-      border-right: 4px solid var(--wall);
-      border-bottom: 4px solid var(--wall);
-      border-bottom-left-radius: 999px;
-      border-bottom-right-radius: 999px;
-    }
-
-    .door-bottom {
-      left: 50%;
-      bottom: -2px;
-      transform: translateX(-50%);
-      width: 64px;
-      height: 12px;
-      border-left: 4px solid var(--wall);
-      border-right: 4px solid var(--wall);
-      border-top: 4px solid var(--wall);
-      border-top-left-radius: 999px;
-      border-top-right-radius: 999px;
-    }
-
-    .room-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .room-meta {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: #475569;
-      position: relative;
-      z-index: 1;
-    }
-
-    .room-kicker {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.28em;
-      color: var(--subtext);
-    }
-
-    .room-title {
-      margin-top: 8px;
-      font-size: 1rem;
-      font-weight: 700;
-      line-height: 1.35;
-      word-break: break-word;
-    }
-
-    .room-icon {
-      font-size: 1.1rem;
-      opacity: 0.75;
-      margin-top: 2px;
-      flex-shrink: 0;
-    }
-
+    .connector-left, .connector-right { height: 20px; background: var(--corridor); }
+    .connector-left { border-top: 4px solid var(--wall); border-bottom: 4px solid var(--wall); border-left: 4px solid var(--wall); border-top-left-radius: 999px; border-bottom-left-radius: 999px; }
+    .connector-right { border-top: 4px solid var(--wall); border-bottom: 4px solid var(--wall); border-right: 4px solid var(--wall); border-top-right-radius: 999px; border-bottom-right-radius: 999px; }
+    .floor-room { position: relative; width: 100%; min-height: 150px; border: 4px solid var(--wall); background: rgba(255,255,255,0.96); text-align: left; padding: 16px; box-shadow: var(--shadow); }
+    .floor-room:hover { background: white; transform: scale(1.015); }
+    .room-outline { position: absolute; inset: 8px; border: 1px dashed #cbd5e1; border-radius: 20px; pointer-events: none; }
+    .door-right, .door-left { position: absolute; background: var(--bg1); top: 50%; transform: translateY(-50%); width: 12px; height: 64px; }
+    .door-right { right: -2px; border-top: 4px solid var(--wall); border-bottom: 4px solid var(--wall); border-left: 4px solid var(--wall); border-top-left-radius: 999px; border-bottom-left-radius: 999px; }
+    .door-left { left: -2px; border-top: 4px solid var(--wall); border-bottom: 4px solid var(--wall); border-right: 4px solid var(--wall); border-top-right-radius: 999px; border-bottom-right-radius: 999px; }
+    .room-head { display: flex; justify-content: space-between; align-個物品: flex-start; gap: 12px; position: relative; z-index: 1; }
+    .room-kicker { font-size: 10px; text-transform: uppercase; letter-spacing: 0.28em; color: var(--subtext); }
+    .room-title { margin-top: 8px; font-size: 1rem; font-weight: 700; line-height: 1.35; word-break: break-word; }
+    .room-meta { margin-top: 10px; font-size: 0.9rem; color: #475569; position: relative; z-index: 1; }
+    .room-icon { font-size: 1.1rem; opacity: 0.75; }
     .shape-1 { border-top-left-radius: 48px; border-bottom-right-radius: 32px; border-top-right-radius: 20px; border-bottom-left-radius: 20px; }
     .shape-2 { border-top-left-radius: 28px; border-top-right-radius: 36px; border-bottom-left-radius: 32px; border-bottom-right-radius: 20px; }
     .shape-3 { border-top-right-radius: 48px; border-bottom-left-radius: 32px; border-top-left-radius: 20px; border-bottom-right-radius: 20px; }
     .shape-4 { border-bottom-left-radius: 48px; border-top-right-radius: 32px; border-top-left-radius: 20px; border-bottom-right-radius: 20px; }
-    .shape-5 { border-radius: 28px; }
+    .shape-5 { border-radius: 28px; min-height: 96px; }
     .shape-6 { border-bottom-right-radius: 48px; border-top-left-radius: 32px; border-top-right-radius: 20px; border-bottom-left-radius: 20px; }
-
-    .section-header-box {
-      margin-bottom: 16px;
-      border-radius: 32px;
-      border: 4px solid var(--wall);
-      background: white;
-      padding: 16px;
-      box-shadow: 0 4px 12px rgba(15,23,42,0.05);
+    .item-room.highlighted { background: var(--highlight); border-color: #ca8a04; box-shadow: 0 0 0 4px rgba(250,204,21,0.35); }
+    .summary-card { flex: 1; min-width: 180px; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: white; }
+    .summary-card strong { display: block; font-size: 1.2rem; margin-top: 6px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid var(--line); padding: 12px; vertical-align: top; text-align: left; }
+    th { background: #f8fafc; }
+    .checkbox-cell { text-align: center; }
+    .star-grid { display: grid; gap: 14px; }
+    .star-table .star-row { flex-wrap: nowrap; }
+    .star-btn {
+      width: clamp(36px, 4vw, 48px);
+      height: clamp(36px, 4vw, 48px);
+      padding: 0;
+      border-radius: 50%;
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      display: inline-flex;
+      align-個物品: center;
+      justify-content: center;
+      flex: 0 0 auto;
     }
-
-    .run-complete {
-      margin-top: 24px;
-      border-radius: 24px;
-      border: 1px solid #cbd5e1;
-      background: #0f172a;
+    .floating-target {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 900;
+      width: min(320px, calc(100vw - 32px));
+      background: rgba(15, 23, 42, 0.96);
       color: white;
-      padding: 20px;
-      box-shadow: 0 18px 36px rgba(15,23,42,0.22);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 20px 50px rgba(15,23,42,0.28);
     }
-
-    .run-complete-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .run-complete-sub { color: #cbd5e1; }
-
+    .floating-target .micro-label { color: #cbd5e1; }
+    .floating-target .target-title { font-size: 1.15rem; font-weight: 700; margin-top: 8px; }
+    .floating-target .target-sub { margin-top: 8px; color: #e2e8f0; font-size: 0.92rem; line-height: 1.45; }
+    .paragraph-block { display: grid; gap: 12px; margin-bottom: 20px; }
+    .sentence-card { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-個物品: center; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: white; transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease; }
+    .sentence-card.anchor { background: #0f172a; color: white; border-color: #0f172a; }
+    .sentence-card.swapping { transform: scale(1.03); box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18); }
+    .move-stack { display: grid; gap: 8px; align-self: stretch; }
+    .move-btn { width: 46px; height: 46px; padding: 0; display: inline-flex; align-個物品: center; justify-content: center; }
+    .feedback { margin-top: 12px; font-weight: 600; }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.55); display: flex; align-個物品: center; justify-content: center; padding: 20px; z-index: 1000; }
+    .modal { max-width: 560px; width: 100%; background: white; border-radius: 28px; padding: 24px; box-shadow: 0 24px 60px rgba(15,23,42,0.25); }
+    .modal h3 { margin-top: 0; font-size: 1.4rem; }
+    textarea { width: 100%; min-height: 110px; margin-top: 14px; border-radius: 16px; border: 1px solid var(--line); padding: 12px; font: inherit; resize: vertical; }
     @media (max-width: 1100px) {
-      .app-shell { grid-template-columns: 1fr; }
-      .two-wing { grid-template-columns: 1fr; }
-      .corridor-vertical { display: none; }
+      .app-shell, .two-wing { grid-template-columns: 1fr; }
+      .corridor-vertical, .connector-left, .connector-right { display: none; }
       .connector-row-left, .connector-row-right { grid-template-columns: 1fr; }
-      .connector-left, .connector-right { display: none; }
     }
-
     @media (max-width: 700px) {
       body { padding: 12px; }
-      .panel-body, .panel-header, .main-panel-header, .map-wrapper { padding-left: 16px; padding-right: 16px; }
       .button-row { grid-template-columns: 1fr; }
-      .header-top { align-items: flex-start; }
+      .floating-target { right: 12px; bottom: 12px; width: calc(100vw - 24px); }
+      .sentence-card { grid-template-columns: 1fr; }
+      .move-stack { grid-auto-flow: column; }
     }
   </style>
 </head>
 <body>
   <div id="app"></div>
-
   <script>
     const CATEGORY_ITEMS = {
       Kitchen: ["plate", "bowl", "cup", "fork", "spoon", "knife", "pan", "pot", "kettle", "cutting board", "dish soap", "sponge"],
@@ -545,619 +172,290 @@
     };
 
     const SHOWROOM_SECTIONS = {
-      Kitchen: {
-        Cookware: ["pan", "pot", "kettle", "cutting board"],
-        Tableware: ["plate", "bowl", "cup", "fork", "spoon", "knife"],
-        Cleaning: ["dish soap", "sponge"]
-      },
-      Bedroom: {
-        Bedding: ["pillow", "blanket", "bedsheet"],
-        Storage: ["hanger", "laundry basket", "slippers"],
-        Personal: ["alarm clock", "lamp", "mirror"]
-      },
-      Bathroom: {
-        DentalCare: ["toothbrush", "toothpaste"],
-        Bathing: ["towel", "soap", "shampoo"],
-        Grooming: ["hair dryer", "toilet paper", "comb", "razor"]
-      },
-      Cleaning: {
-        FloorCare: ["broom", "mop", "bucket", "vacuum cleaner"],
-        Supplies: ["spray bottle", "dustpan", "rubber gloves", "trash bag"]
-      },
-      LivingRoom: {
-        Comfort: ["cushion", "candle", "vase", "tissue box"],
-        Devices: ["remote control", "extension cord", "battery", "flashlight"]
-      },
-      Study: {
-        WritingTools: ["pen", "pencil", "marker"],
-        DeskTools: ["eraser", "ruler", "scissors", "tape", "notebook"]
-      }
+      Kitchen: { Cookware: ["pan", "pot", "kettle", "cutting board"], Tableware: ["plate", "bowl", "cup", "fork", "spoon", "knife"], Cleaning: ["dish soap", "sponge"] },
+      Bedroom: { Bedding: ["pillow", "blanket", "bedsheet"], Storage: ["hanger", "laundry basket", "slippers"], Personal: ["alarm clock", "lamp", "mirror"] },
+      Bathroom: { DentalCare: ["toothbrush", "toothpaste"], Bathing: ["towel", "soap", "shampoo"], Grooming: ["hair dryer", "toilet paper", "comb", "razor"] },
+      Cleaning: { FloorCare: ["broom", "mop", "bucket", "vacuum cleaner"], Supplies: ["spray bottle", "dustpan", "rubber gloves", "trash bag"] },
+      LivingRoom: { Comfort: ["cushion", "candle", "vase", "tissue box"], Devices: ["remote control", "extension cord", "battery", "flashlight"] },
+      Study: { WritingTools: ["pen", "pencil", "marker"], DeskTools: ["eraser", "ruler", "scissors", "tape", "notebook"] }
     };
 
     const MUSEUMS = [
-      { id: "random", shortLabel: "Museum A", name: "Museum A", labelMode: "item-list", organization: "random" },
-      { id: "listed", shortLabel: "Museum B", name: "Museum B", labelMode: "item-list", organization: "structured" },
-      { id: "structured", shortLabel: "Museum C", name: "Museum C", labelMode: "category", organization: "structured" }
+      { id: "random", shortLabel: "博物館 A", name: "博物館 A", labelMode: "item-list", organization: "random" },
+      { id: "listed", shortLabel: "博物館 B", name: "博物館 B", labelMode: "item-list", organization: "structured" },
+      { id: "structured", shortLabel: "博物館 C", name: "博物館 C", labelMode: "category", organization: "structured" }
+    ];
+    const ROOM_SHAPES = ["shape-1", "shape-2", "shape-3", "shape-4", "shape-5", "shape-6"];
+    const COMPARISON_SCHEMES = [
+      "所有相關物品都被放在同一個展示間。",
+      "清楚的標籤能快速指出展品之間的共同點。",
+      "動線會從大分類逐步縮小到更細的子分類。",
+      "參觀者必須靠隨機掃視，而不是依賴有幫助的分組。",
+      "展示方式隱藏了細節層次，因此所有內容看起來都一樣具體。",
+      "這種組織方式能幫助參觀者預測相符物品會在哪裡。"
+    ];
+    const PARAGRAPH_SENTENCES = [
+      "New York is a noisy city.",
+      "Traffic, sirens, and crowded sidewalks create a constant layer of sound from morning until late at night.",
+      "For example, one person walking through Times Square might hear taxi horns, street performers, construction drills, and dozens of conversations all at once."
+    ];
+    const PRACTICE_SENTENCES = [
+      { id: "p1-topic", paragraph: 1, type: "topic", anchor: true, text: "School gardens can teach students how communities work together." },
+      { id: "p1-support", paragraph: 1, type: "support", anchor: false, text: "They give each class a shared job, such as planting, watering, and checking what the plants need." },
+      { id: "p1-example", paragraph: 1, type: "example", anchor: false, text: "For example, one class might measure tomato growth each week and record the changes on a chart." },
+      { id: "p2-topic", paragraph: 2, type: "topic", anchor: false, text: "Clear museum labels help visitors move from broad ideas to precise information." },
+      { id: "p2-support", paragraph: 2, type: "support", anchor: true, text: "A strong layout first names the big section, then narrows the search with smaller grouped displays." },
+      { id: "p2-example", paragraph: 2, type: "example", anchor: false, text: "For instance, a visitor can follow Kitchen → Cookware → pans instead of scanning every room at once." },
+      { id: "p3-topic", paragraph: 3, type: "topic", anchor: false, text: "Good paragraphs organize ideas in a way that helps readers follow the writer’s thinking." },
+      { id: "p3-support", paragraph: 3, type: "support", anchor: false, text: "Writers often begin with a main point, add a supporting detail, and end with a specific illustration." },
+      { id: "p3-example", paragraph: 3, type: "example", anchor: true, text: "For example, a writer could introduce recycling, explain how sorting works, and then describe one classroom recycling station." }
     ];
 
-    const ROOM_SHAPES = ["shape-1", "shape-2", "shape-3", "shape-4", "shape-5", "shape-6"];
+    let state = {
+      activeMuseumIndex: 0,
+      view: "museum",
+      selectedShowroomId: null,
+      selectedSectionId: null,
+      layouts: {},
+      museumResults: {},
+      museumDifficultyRatings: { random: 0, listed: 0, structured: 0 },
+      comparisonChecks: Object.fromEntries(COMPARISON_SCHEMES.map(scheme => [scheme, []])),
+      timerSeconds: 0,
+      timerId: null,
+      gameState: "idle",
+      activeTarget: null,
+      highlightedItem: null,
+      modal: null,
+      sentenceRatings: [0, 0, 0],
+      structureChoice: null,
+      structureWhy: "",
+      practiceOrder: [],
+      swappingSentenceId: null
+    };
 
-    let activeMuseumId = MUSEUMS[0].id;
-    let view = "museum";
-    let selectedShowroomId = null;
-    let selectedSectionId = null;
-    let foundItems = [];
-    let targets = [];
-    let timeLeft = 120;
-    let gameState = "idle";
-    let timerId = null;
+    function shuffle(array) { const arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function chunk(array, size) { const out = []; for (let i = 0; i < array.length; i += size) out.push(array.slice(i, i + size)); return out; }
+    function titleCase(text) { return text.replace(/([A-Z])/g, " $1").trim().replace(/^./, m => m.toUpperCase()); }
+    function formatTime(totalSeconds) { const minutes = Math.floor(totalSeconds / 60); const seconds = String(totalSeconds % 60).padStart(2, "0"); return `${minutes}:${seconds}`; }
+    function escapeHTML(str) { return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+    function pluralizeItem(item) { return item.endsWith("s") ? item : `${item}s`; }
+    function renderStars(value, attrs) { return [1,2,3,4,5].map(n => `<button class="star-btn ${value >= n ? 'active' : ''}" ${attrs(n)}>★</button>`).join(''); }
 
-    function shuffle(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    function sample(array, count) {
-      return shuffle(array).slice(0, count);
-    }
-
-    function titleCase(text) {
-      return text.replace(/([A-Z])/g, " $1").trim().replace(/^./, m => m.toUpperCase());
-    }
-
-    function pluralizeItem(item) {
-      const irregular = {
-        toothbrush: "toothbrushes",
-        flashlight: "flashlights",
-        "tissue box": "tissue boxes",
-        "dish soap": "dish soaps",
-        toothpaste: "toothpastes",
-        "toilet paper": "toilet papers",
-        "hair dryer": "hair dryers",
-        "laundry basket": "laundry baskets",
-        "alarm clock": "alarm clocks",
-        "cutting board": "cutting boards",
-        "remote control": "remote controls",
-        "extension cord": "extension cords",
-        "spray bottle": "spray bottles",
-        "vacuum cleaner": "vacuum cleaners",
-        "rubber gloves": "rubber gloves",
-        bedsheet: "bedsheets"
-      };
-      if (irregular[item]) return irregular[item];
-      if (item.endsWith("y") && !/[aeiou]y$/.test(item)) return item.slice(0, -1) + "ies";
-      if (/(s|x|z|ch|sh)$/.test(item)) return item + "es";
-      return item + "s";
-    }
-
-    function chunk(array, size) {
-      const chunks = [];
-      for (let i = 0; i < array.length; i += size) chunks.push(array.slice(i, i + size));
-      return chunks;
+    function createInitialPracticeOrder() {
+      const anchors = [1, 2, 3].map(paragraph => PRACTICE_SENTENCES.find(item => item.anchor && item.paragraph === paragraph));
+      const others = shuffle(PRACTICE_SENTENCES.filter(sentence => !sentence.anchor));
+      return [anchors[0], others[0], others[1], others[2], anchors[1], others[3], others[4], others[5], anchors[2]];
     }
 
     function buildStructuredMuseum(labelMode) {
       return Object.entries(SHOWROOM_SECTIONS).map(([showroomName, sections]) => {
-        const sectionEntries = Object.entries(sections).map(([sectionName, items]) => ({
-          id: `${showroomName}-${sectionName}`,
-          name: labelMode === "category" ? titleCase(sectionName) : items.join(", "),
-          trueName: titleCase(sectionName),
-          items
-        }));
-
+        const sectionEntries = Object.entries(sections).map(([sectionName, items]) => ({ id: `${showroomName}-${sectionName}`, name: labelMode === "category" ? titleCase(sectionName) : items.join(", "), trueName: titleCase(sectionName), items }));
         const showroomItems = sectionEntries.flatMap(section => section.items);
-
-        return {
-          id: showroomName,
-          name: labelMode === "category" ? titleCase(showroomName) : showroomItems.join(", "),
-          trueName: titleCase(showroomName),
-          sections: sectionEntries
-        };
+        return { id: showroomName, name: labelMode === "category" ? titleCase(showroomName) : showroomItems.join(", "), trueName: titleCase(showroomName), sections: sectionEntries };
       });
     }
-
     function buildRandomMuseum() {
       const allItems = Object.values(CATEGORY_ITEMS).flat();
-      const shuffled = shuffle(allItems);
-      const showroomChunks = chunk(shuffled, Math.ceil(shuffled.length / 6));
-
-      return showroomChunks.map((itemsForShowroom, showroomIndex) => {
-        const sectionChunks = chunk(itemsForShowroom, Math.max(2, Math.ceil(itemsForShowroom.length / 3)));
-        return {
-          id: `random-${showroomIndex}`,
-          name: itemsForShowroom.join(", "),
-          trueName: itemsForShowroom.join(", "),
-          sections: sectionChunks.map((items, sectionIndex) => ({
-            id: `random-${showroomIndex}-${sectionIndex}`,
-            name: items.join(", "),
-            trueName: items.join(", "),
-            items
-          }))
-        };
-      });
+      const showroomChunks = chunk(shuffle(allItems), Math.ceil(allItems.length / 6));
+      return showroomChunks.map((itemsForShowroom, showroomIndex) => ({
+        id: `random-${showroomIndex}`,
+        name: itemsForShowroom.join(", "),
+        trueName: `展示間 ${showroomIndex + 1}`,
+        sections: chunk(itemsForShowroom, Math.max(2, Math.ceil(itemsForShowroom.length / 3))).map((items, sectionIndex) => ({ id: `random-${showroomIndex}-${sectionIndex}`, name: items.join(", "), trueName: `區域 ${sectionIndex + 1}`, items }))
+      }));
     }
-
-    function buildMuseum(museum) {
-      return museum.organization === "random" ? buildRandomMuseum() : buildStructuredMuseum(museum.labelMode);
+    function buildMuseum(museum) { return museum.organization === "random" ? buildRandomMuseum() : buildStructuredMuseum(museum.labelMode); }
+    function ensureLayouts() { MUSEUMS.forEach(museum => { if (!state.layouts[museum.id]) state.layouts[museum.id] = buildMuseum(museum); }); }
+    function getActiveMuseum() { return MUSEUMS[state.activeMuseumIndex]; }
+    function getLayout() { ensureLayouts(); return state.layouts[getActiveMuseum().id]; }
+    function getSelectedShowroom(layout) { return layout.find(showroom => showroom.id === state.selectedShowroomId) || null; }
+    function getSelectedSection(showroom) { return showroom?.sections.find(section => section.id === state.selectedSectionId) || null; }
+    function getLastShowroom(layout) { return layout[layout.length - 1]; }
+    function pickTargetForMuseum(index) {
+      const museum = MUSEUMS[index];
+      const layout = state.layouts[museum.id] || buildMuseum(museum);
+      state.layouts[museum.id] = layout;
+      return shuffle(getLastShowroom(layout).sections.flatMap(section => section.items))[0];
     }
-
-    function generateTargets() {
-      return sample(Object.values(CATEGORY_ITEMS).flat(), 10);
-    }
-
-    function getActiveMuseum() {
-      return MUSEUMS.find(m => m.id === activeMuseumId);
-    }
-
-    function getLayout() {
-      return buildMuseum(getActiveMuseum());
-    }
-
-    function getSelectedShowroom(layout) {
-      return layout.find(showroom => showroom.id === selectedShowroomId) || null;
-    }
-
-    function getSelectedSection(selectedShowroom) {
-      return selectedShowroom?.sections.find(section => section.id === selectedSectionId) || null;
-    }
-
-    function resetForMuseumSwitch() {
-      view = "museum";
-      selectedShowroomId = null;
-      selectedSectionId = null;
-      foundItems = [];
-      targets = generateTargets();
-      timeLeft = 120;
-      gameState = "idle";
+    function stopTimer() { if (state.timerId) { clearInterval(state.timerId); state.timerId = null; } }
+    function scrollToId(id) { document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function resetNavigation() { state.view = "museum"; state.selectedShowroomId = null; state.selectedSectionId = null; state.highlightedItem = null; }
+    function prepareMuseum(index = state.activeMuseumIndex) {
       stopTimer();
+      ensureLayouts();
+      state.activeMuseumIndex = index;
+      resetNavigation();
+      state.activeTarget = pickTargetForMuseum(index);
+      state.timerSeconds = 0;
+      state.gameState = "ready";
+      state.modal = { type: "target-reveal", museumName: MUSEUMS[index].name, target: state.activeTarget };
+      render();
+      scrollToId("museum-view");
     }
-
-    function stopTimer() {
-      if (timerId) {
-        clearInterval(timerId);
-        timerId = null;
-      }
+    function startSearchAfterReveal() {
+      state.modal = null;
+      state.gameState = "running";
+      state.timerId = setInterval(() => { state.timerSeconds += 1; render(); }, 1000);
+      render();
+      scrollToId("museum-view");
     }
-
-    function startGame() {
+    function resetExperience() {
       stopTimer();
-      targets = generateTargets();
-      foundItems = [];
-      timeLeft = 120;
-      gameState = "running";
-      view = "museum";
-      selectedShowroomId = null;
-      selectedSectionId = null;
-      timerId = setInterval(() => {
-        timeLeft -= 1;
-        if (timeLeft <= 0) {
-          timeLeft = 0;
-          gameState = "finished";
-          stopTimer();
-        }
+      state.layouts = {};
+      state.museumResults = {};
+      state.museumDifficultyRatings = { random: 0, listed: 0, structured: 0 };
+      state.comparisonChecks = Object.fromEntries(COMPARISON_SCHEMES.map(scheme => [scheme, []]));
+      state.activeMuseumIndex = 0;
+      state.activeTarget = null;
+      state.timerSeconds = 0;
+      state.gameState = "idle";
+      state.highlightedItem = null;
+      state.modal = null;
+      state.sentenceRatings = [0, 0, 0];
+      state.structureChoice = null;
+      state.structureWhy = "";
+      state.practiceOrder = createInitialPracticeOrder();
+      state.swappingSentenceId = null;
+      resetNavigation();
+      ensureLayouts();
+      render();
+    }
+    function openShowroom(id) { state.selectedShowroomId = id; state.selectedSectionId = null; state.view = "showroom"; render(); scrollToId("museum-view"); }
+    function openSection(id) { state.selectedSectionId = id; state.view = "section"; render(); scrollToId("museum-view"); }
+    function goBack() { if (state.view === "section") { state.view = "showroom"; state.selectedSectionId = null; } else if (state.view === "showroom") { state.view = "museum"; state.selectedShowroomId = null; } render(); scrollToId("museum-view"); }
+    function goHome() { resetNavigation(); render(); scrollToId("museum-view"); }
+    function completeMuseumWithItem(item) {
+      stopTimer();
+      const museum = getActiveMuseum();
+      state.highlightedItem = item;
+      state.gameState = "museum-complete";
+      state.museumResults[museum.id] = { museumName: museum.name, target: item, time: state.timerSeconds };
+      const nextIndex = state.activeMuseumIndex + 1;
+      const allDone = nextIndex >= MUSEUMS.length;
+      state.modal = { type: "museum-complete", museumName: museum.name, target: item, time: state.timerSeconds, allDone, nextMuseumName: allDone ? null : MUSEUMS[nextIndex].name };
+      render();
+      scrollToId("museum-view");
+    }
+    function handleItemClick(item) { if (state.gameState === "running" && item === state.activeTarget) completeMuseumWithItem(item); }
+    function proceedFromCompletion() {
+      if (!state.modal || state.modal.type !== "museum-complete") return;
+      if (state.modal.allDone) {
+        state.modal = null;
+        state.gameState = "complete";
         render();
-      }, 1000);
-      render();
-    }
-
-    function resetGame() {
-      stopTimer();
-      targets = generateTargets();
-      foundItems = [];
-      timeLeft = 120;
-      gameState = "idle";
-      view = "museum";
-      selectedShowroomId = null;
-      selectedSectionId = null;
-      render();
-    }
-
-    function openShowroom(id) {
-      selectedShowroomId = id;
-      selectedSectionId = null;
-      view = "showroom";
-      render();
-    }
-
-    function openSection(id) {
-      selectedSectionId = id;
-      view = "section";
-      render();
-    }
-
-    function goBack() {
-      if (view === "section") {
-        view = "showroom";
-        selectedSectionId = null;
-      } else if (view === "showroom") {
-        view = "museum";
-        selectedShowroomId = null;
-      }
-      render();
-    }
-
-    function goHome() {
-      view = "museum";
-      selectedShowroomId = null;
-      selectedSectionId = null;
-      render();
-    }
-
-    function handleItemClick(item) {
-      if (gameState !== "running") return;
-      if (targets.includes(item) && !foundItems.includes(item)) {
-        foundItems.push(item);
-        if (foundItems.length === targets.length) {
-          gameState = "finished";
-          stopTimer();
-        }
-        render();
+        scrollToId("reflection-section");
+      } else {
+        prepareMuseum(state.activeMuseumIndex + 1);
       }
     }
-
-    function progressPercent() {
-      return Math.round((foundItems.length / targets.length) * 100);
+    function progressPercent() { return Object.keys(state.museumResults).length / MUSEUMS.length * 100; }
+    function roomHTML({ title, subtitle, meta, icon, shapeClass, doorSide, dataAttrs = "" }) {
+      return `<button class="floor-room ${shapeClass}" ${dataAttrs}><div class="room-outline"></div><div class="door-${doorSide}"></div><div class="room-head"><div><div class="room-kicker">${subtitle}</div><div class="room-title">${escapeHTML(title)}</div></div><div class="room-icon">${icon}</div></div><div class="room-meta">${escapeHTML(meta)}</div></button>`;
     }
-
-    function roomHTML({ title, subtitle, meta, icon, shapeClass, doorSide, dataAttrs = "", extraClass = "" }) {
-      return `
-        <button class="floor-room ${shapeClass} ${extraClass}" ${dataAttrs}>
-          <div class="room-outline"></div>
-          <div class="door-${doorSide}"></div>
-          <div class="room-head">
-            <div>
-              <div class="room-kicker">${subtitle}</div>
-              <div class="room-title">${escapeHTML(title)}</div>
-            </div>
-            <div class="room-icon">${icon}</div>
-          </div>
-          <div class="room-meta">${escapeHTML(meta)}</div>
-        </button>
-      `;
-    }
-
     function renderMuseumView(layout) {
-      const leftWing = layout.slice(0, 3);
-      const rightWing = layout.slice(3, 6);
-
-      return `
-        <div class="blueprint">
-          <div class="lobby">
-            <div class="micro-label">Main lobby</div>
-            <div class="section-title">Museum View</div>
-            <div class="subtitle-text">Find the most efficient route to the correct household items.</div>
-          </div>
-
-          <div class="two-wing">
-            <div class="wing">
-              ${leftWing.map((showroom, index) => `
-                <div class="connector-row-left">
-                  ${roomHTML({
-                    title: showroom.name,
-                    subtitle: "Showroom",
-                    meta: `${showroom.sections.length} sections`,
-                    icon: "🏛️",
-                    shapeClass: ROOM_SHAPES[index % ROOM_SHAPES.length],
-                    doorSide: "right",
-                    dataAttrs: `data-action="open-showroom" data-showroom-id="${showroom.id}"`
-                  })}
-                  <div class="connector-right"></div>
-                </div>
-              `).join("")}
-            </div>
-
-            <div class="corridor-vertical">
-              <div class="micro-label">Central</div>
-              <div class="vertical-text">Corridor</div>
-              <div class="micro-label">Hall</div>
-            </div>
-
-            <div class="wing">
-              ${rightWing.map((showroom, index) => `
-                <div class="connector-row-right">
-                  <div class="connector-left"></div>
-                  ${roomHTML({
-                    title: showroom.name,
-                    subtitle: "Showroom",
-                    meta: `${showroom.sections.length} sections`,
-                    icon: "🏛️",
-                    shapeClass: ROOM_SHAPES[(index + 3) % ROOM_SHAPES.length],
-                    doorSide: "left",
-                    dataAttrs: `data-action="open-showroom" data-showroom-id="${showroom.id}"`
-                  })}
-                </div>
-              `).join("")}
-            </div>
-          </div>
-        </div>
-      `;
+      const leftWing = layout.slice(0, 3), rightWing = layout.slice(3, 6), lastShowroom = getLastShowroom(layout);
+      return `<div class="blueprint" id="museum-view"><div class="lobby"><div class="micro-label">主大廳</div><div class="section-title">博物館視圖</div><div class="subtitle-text">目標物品一定藏在最後一個展示間。請依序打開房間、往下探索各層，並在點擊正確展品時停止計時。</div></div><div class="prompt-box"><strong>本回合最後展示間：</strong> ${escapeHTML(lastShowroom.trueName || lastShowroom.name)}<div class="subtitle" style="margin-top:10px">右下角的浮動目標卡會持續顯示，直到所有博物館挑戰完成為止。</div></div><div class="two-wing"><div class="wing">${leftWing.map((showroom, index) => `<div class="connector-row-left">${roomHTML({ title: showroom.name, subtitle: showroom.id === lastShowroom.id ? "最後展示間" : "展示間", meta: `${showroom.sections.length} 個區域`, icon: showroom.id === lastShowroom.id ? "🎯" : "🏛️", shapeClass: ROOM_SHAPES[index % ROOM_SHAPES.length], doorSide: "right", dataAttrs: `data-action="open-showroom" data-showroom-id="${showroom.id}"` })}<div class="connector-right"></div></div>`).join('')}</div><div class="corridor-vertical"><div class="micro-label">中央</div><div class="vertical-text">走廊</div><div class="micro-label">大廳</div></div><div class="wing">${rightWing.map((showroom, index) => `<div class="connector-row-right"><div class="connector-left"></div>${roomHTML({ title: showroom.name, subtitle: showroom.id === lastShowroom.id ? "最後展示間" : "展示間", meta: `${showroom.sections.length} 個區域`, icon: showroom.id === lastShowroom.id ? "🎯" : "🏛️", shapeClass: ROOM_SHAPES[(index + 3) % ROOM_SHAPES.length], doorSide: "left", dataAttrs: `data-action="open-showroom" data-showroom-id="${showroom.id}"` })}</div>`).join('')}</div></div></div>`;
     }
-
     function renderShowroomView(selectedShowroom) {
-      const sections = selectedShowroom.sections;
-      const leftWing = sections.slice(0, Math.ceil(sections.length / 2));
-      const rightWing = sections.slice(Math.ceil(sections.length / 2));
-
-      return `
-        <div class="blueprint simple-grid">
-          <div class="section-header-box">
-            <div class="micro-label">Current showroom</div>
-            <div class="section-title">${escapeHTML(selectedShowroom.name)}</div>
-          </div>
-
-          <div class="two-wing">
-            <div class="wing">
-              ${leftWing.map((section, index) => `
-                <div class="connector-row-left">
-                  ${roomHTML({
-                    title: section.name,
-                    subtitle: "Section",
-                    meta: `${section.items.length} item groups`,
-                    icon: "🗺️",
-                    shapeClass: ROOM_SHAPES[(index + 1) % ROOM_SHAPES.length],
-                    doorSide: "right",
-                    extraClass: "min-h-180",
-                    dataAttrs: `data-action="open-section" data-section-id="${section.id}"`
-                  })}
-                  <div class="connector-right"></div>
-                </div>
-              `).join("")}
-            </div>
-
-            <div class="corridor-vertical">
-              <div class="micro-label">Section</div>
-              <div class="vertical-text">Corridor</div>
-              <div class="micro-label">Path</div>
-            </div>
-
-            <div class="wing">
-              ${rightWing.map((section, index) => `
-                <div class="connector-row-right">
-                  <div class="connector-left"></div>
-                  ${roomHTML({
-                    title: section.name,
-                    subtitle: "Section",
-                    meta: `${section.items.length} item groups`,
-                    icon: "🗺️",
-                    shapeClass: ROOM_SHAPES[(index + 3) % ROOM_SHAPES.length],
-                    doorSide: "left",
-                    dataAttrs: `data-action="open-section" data-section-id="${section.id}"`
-                  })}
-                </div>
-              `).join("")}
-            </div>
-          </div>
-        </div>
-      `;
+      const sections = selectedShowroom.sections, half = Math.ceil(sections.length / 2), wings = [sections.slice(0, half), sections.slice(half)];
+      return `<div class="blueprint simple-grid" id="museum-view"><div class="section-header-box"><div class="micro-label">目前展示間</div><div class="section-title">${escapeHTML(selectedShowroom.trueName)}</div><div class="subtitle-text">請選擇一個區域來查看其中的物品。</div></div><div class="two-wing"><div class="wing">${wings[0].map((section, index) => `<div class="connector-row-left">${roomHTML({ title: section.name, subtitle: "區域", meta: `${section.items.length} 個物品`, icon: "🗺️", shapeClass: ROOM_SHAPES[(index + 1) % ROOM_SHAPES.length], doorSide: "right", dataAttrs: `data-action="open-section" data-section-id="${section.id}"` })}<div class="connector-right"></div></div>`).join('')}</div><div class="corridor-vertical"><div class="micro-label">區域</div><div class="vertical-text">走廊</div><div class="micro-label">通道</div></div><div class="wing">${wings[1].map((section, index) => `<div class="connector-row-right"><div class="connector-left"></div>${roomHTML({ title: section.name, subtitle: "區域", meta: `${section.items.length} 個物品`, icon: "🗺️", shapeClass: ROOM_SHAPES[(index + 3) % ROOM_SHAPES.length], doorSide: "left", dataAttrs: `data-action="open-section" data-section-id="${section.id}"` })}</div>`).join('')}</div></div></div>`;
     }
-
     function renderSectionView(selectedSection) {
-      const pluralItems = selectedSection.items.map(item => pluralizeItem(item));
-      const midpoint = Math.ceil(pluralItems.length / 2);
-      const leftWing = pluralItems.slice(0, midpoint);
-      const rightWing = pluralItems.slice(midpoint);
-
-      return `
-        <div class="blueprint simple-grid">
-          <div class="section-header-box">
-            <div class="micro-label">Current section</div>
-            <div class="section-title">${escapeHTML(selectedSection.name)}</div>
-          </div>
-
-          <div class="two-wing">
-            <div class="wing">
-              ${leftWing.map((label, index) => {
-                const singularItem = selectedSection.items[index];
-                const isTarget = targets.includes(singularItem);
-                const isFound = foundItems.includes(singularItem);
-                return `
-                  <div class="connector-row-left">
-                    <button class="floor-room shape-5" data-action="pick-item" data-item="${escapeAttr(singularItem)}" style="min-height:92px;border-radius:28px;background:rgba(255,255,255,0.9);box-shadow:var(--shadow-strong);">
-                      <div class="room-head">
-                        <div class="room-title">${escapeHTML(label)}</div>
-                        <div class="badge-list">
-                          ${isTarget ? `<span class="badge">Target</span>` : ""}
-                          ${isFound ? `<span class="badge dark">Found</span>` : ""}
-                        </div>
-                      </div>
-                    </button>
-                    <div class="connector-right"></div>
-                  </div>
-                `;
-              }).join("")}
-            </div>
-
-            <div class="corridor-vertical">
-              <div class="micro-label">Exhibit</div>
-              <div class="vertical-text">Corridor</div>
-              <div class="micro-label">Route</div>
-            </div>
-
-            <div class="wing">
-              ${rightWing.map((label, offset) => {
-                const itemIndex = midpoint + offset;
-                const singularItem = selectedSection.items[itemIndex];
-                const isTarget = targets.includes(singularItem);
-                const isFound = foundItems.includes(singularItem);
-                return `
-                  <div class="connector-row-right">
-                    <div class="connector-left"></div>
-                    <button class="floor-room shape-5" data-action="pick-item" data-item="${escapeAttr(singularItem)}" style="min-height:92px;border-radius:28px;background:rgba(255,255,255,0.9);box-shadow:var(--shadow-strong);">
-                      <div class="room-head">
-                        <div class="room-title">${escapeHTML(label)}</div>
-                        <div class="badge-list">
-                          ${isTarget ? `<span class="badge">Target</span>` : ""}
-                          ${isFound ? `<span class="badge dark">Found</span>` : ""}
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                `;
-              }).join("")}
-            </div>
-          </div>
-        </div>
-      `;
+      const labels = selectedSection.items.map(pluralizeItem), midpoint = Math.ceil(labels.length / 2);
+      function itemButton(label, item, side) {
+        const highlighted = state.highlightedItem === item ? "highlighted" : "";
+        const targetBadge = item === state.activeTarget ? '<span class="badge">目標</span>' : '';
+        const inner = `<button class="floor-room shape-5 item-room ${highlighted}" data-action="pick-item" data-item="${escapeHTML(item)}"><div class="room-head"><div class="room-title">${escapeHTML(label)}</div><div class="badge-list">${targetBadge}${highlighted ? '<span class="badge done">已找到</span>' : ''}</div></div></button>`;
+        return side === "left" ? `<div class="connector-row-left">${inner}<div class="connector-right"></div></div>` : `<div class="connector-row-right"><div class="connector-left"></div>${inner}</div>`;
+      }
+      return `<div class="blueprint simple-grid" id="museum-view"><div class="section-header-box"><div class="micro-label">目前區域</div><div class="section-title">${escapeHTML(selectedSection.trueName)}</div><div class="subtitle-text">點擊正確展品即可停止計時。</div></div><div class="two-wing"><div class="wing">${labels.slice(0, midpoint).map((label, index) => itemButton(label, selectedSection.items[index], "left")).join('')}</div><div class="corridor-vertical"><div class="micro-label">展品</div><div class="vertical-text">走廊</div><div class="micro-label">路線</div></div><div class="wing">${labels.slice(midpoint).map((label, offset) => itemButton(label, selectedSection.items[midpoint + offset], "right")).join('')}</div></div></div>`;
     }
-
     function renderSidebar() {
-      return `
-        <div class="panel-header">
-          <h1 class="title">Museum Search Challenge</h1>
-        </div>
-        <div class="panel-body">
-          <div class="info-box">
-            <div class="info-label">🔎 Target items</div>
-            <div class="badge-list">
-              ${targets.map(item => `<span class="badge ${foundItems.includes(item) ? "found" : ""}">${escapeHTML(item)}</span>`).join("")}
-            </div>
-          </div>
-
-          <div class="info-box">
-            <div class="progress-meta">
-              <div class="info-label" style="margin:0">⏱️ Time left</div>
-              <div class="timer-value">${formatTime(timeLeft)}</div>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" style="width:${(timeLeft / 120) * 100}%"></div></div>
-          </div>
-
-          <div class="info-box">
-            <div class="info-label">📈 Progress</div>
-            <div class="progress-meta">
-              <span>${foundItems.length} / ${targets.length} found</span>
-              <span>${progressPercent()}%</span>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" style="width:${progressPercent()}%"></div></div>
-          </div>
-
-          <div class="button-row">
-            <button class="btn btn-primary" data-action="start-game">${gameState === "running" ? "Restart Run" : "Start 2-Minute Run"}</button>
-            <button class="btn btn-secondary" data-action="reset-game">↻ Reset</button>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderMain() {
       const activeMuseum = getActiveMuseum();
-      const layout = getLayout();
-      const selectedShowroom = getSelectedShowroom(layout);
-      const selectedSection = getSelectedSection(selectedShowroom);
-
-      let mapContent = "";
-      if (view === "museum") mapContent = renderMuseumView(layout);
-      if (view === "showroom" && selectedShowroom) mapContent = renderShowroomView(selectedShowroom);
-      if (view === "section" && selectedSection) mapContent = renderSectionView(selectedSection);
-
-      return `
-        <div class="main-panel-header">
-          <div class="header-top">
-            <h2 class="title" style="margin:0">${activeMuseum.name}</h2>
-            <div class="top-actions">
-              <button class="pill-btn" data-action="go-back" ${view === "museum" ? "disabled" : ""}>← Back</button>
-              <button class="pill-btn" data-action="go-home" ${view === "museum" ? "disabled" : ""}>⌂ Top Level</button>
-            </div>
-          </div>
-
-          <div class="museum-tabs">
-            ${MUSEUMS.map(museum => `
-              <button class="pill-btn ${museum.id === activeMuseumId ? "active" : ""}" data-action="switch-museum" data-museum-id="${museum.id}">${museum.shortLabel}</button>
-            `).join("")}
-          </div>
-
-          <div class="view-badges" style="margin-top:12px;">
-            <span class="badge ${view === "museum" ? "dark" : ""}">1. Museum view</span>
-            <span class="badge ${view === "showroom" ? "dark" : ""}">2. Showroom view</span>
-            <span class="badge ${view === "section" ? "dark" : ""}">3. Section view</span>
-            <span class="badge ${gameState === "running" ? "dark" : ""}">Status: ${gameState}</span>
-          </div>
-        </div>
-
-        <div class="map-wrapper">
-          ${mapContent}
-          ${gameState === "finished" ? `
-            <div class="run-complete">
-              <div class="run-complete-title">Run complete</div>
-              <div class="run-complete-sub">You found ${foundItems.length} out of ${targets.length} target items in ${activeMuseum.name}.</div>
-            </div>
-          ` : ""}
-        </div>
-      `;
+      return `<div class="panel-header"><h1 class="title">博物館搜尋挑戰</h1><div class="subtitle">每個博物館尋找一個目標，比較不同布局，並把你學到的結構概念轉化到段落寫作中。</div></div><div class="panel-body"><div class="info-box"><div class="progress-meta"><div class="info-label" style="margin:0">⏱️ 碼表</div><div class="timer-value">${formatTime(state.timerSeconds)}</div></div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(progressPercent(),100)}%"></div></div><div class="subtitle" style="margin-top:10px">只有在目標揭示視窗中按下開始後，碼表才會開始計時。</div></div><div class="info-box"><div class="info-label">🏁 博物館進度</div><div class="badge-list">${MUSEUMS.map((museum, index) => `<span class="badge ${state.museumResults[museum.id] ? 'done' : index === state.activeMuseumIndex ? 'dark' : ''}">${museum.shortLabel}${state.museumResults[museum.id] ? ` · ${formatTime(state.museumResults[museum.id].time)}` : ''}</span>`).join('')}</div><div class="subtitle" style="margin-top:10px">目前博物館：${activeMuseum.name}</div></div><div class="button-row"><button class="btn btn-primary" data-action="start-game">${state.gameState === 'running' || state.gameState === 'ready' ? `重新開始 ${activeMuseum.name}` : '揭示目標'}</button><button class="btn" data-action="reset-game">↻ 全部重設</button></div></div>`;
     }
-
-    function formatTime(totalSeconds) {
-      const minutes = Math.floor(totalSeconds / 60);
-      const seconds = String(totalSeconds % 60).padStart(2, "0");
-      return `${minutes}:${seconds}`;
+    function renderFloatingTarget() {
+      if (!state.activeTarget || state.gameState === 'complete') return '';
+      return `<div class="floating-target"><div class="micro-label">目前目標</div><div class="target-title">${escapeHTML(state.activeTarget)}</div><div class="target-sub">請在 ${getActiveMuseum().name} 的最後展示間中尋找。完成全部博物館挑戰後，這張卡片會自動隱藏。</div></div>`;
     }
-
-    function escapeHTML(str) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\"/g, "&quot;")
-        .replace(/'/g, "&#39;");
+    function renderMain() {
+      const activeMuseum = getActiveMuseum(), layout = getLayout(), selectedShowroom = getSelectedShowroom(layout), selectedSection = getSelectedSection(selectedShowroom);
+      let content = renderMuseumView(layout);
+      if (state.view === "showroom" && selectedShowroom) content = renderShowroomView(selectedShowroom);
+      if (state.view === "section" && selectedSection) content = renderSectionView(selectedSection);
+      return `<div class="main-panel-header"><div class="header-top"><h2 class="title" style="margin:0">${activeMuseum.name}</h2><div class="top-actions"><button class="pill-btn" data-action="go-back" ${state.view === 'museum' ? 'disabled' : ''}>← 返回</button><button class="pill-btn" data-action="go-home" ${state.view === 'museum' ? 'disabled' : ''}>⌂ 最上層</button></div></div><div class="museum-tabs">${MUSEUMS.map((museum, index) => `<button class="pill-btn ${index === state.activeMuseumIndex ? 'active' : ''}" data-action="switch-museum" data-museum-index="${index}" ${state.gameState === 'running' ? 'disabled' : ''}>${museum.shortLabel}</button>`).join('')}</div><div class="view-badges" style="margin-top:12px;"><span class="badge ${state.view === 'museum' ? 'dark' : ''}">1. 博物館視圖</span><span class="badge ${state.view === 'showroom' ? 'dark' : ''}">2. 展示間視圖</span><span class="badge ${state.view === 'section' ? 'dark' : ''}">3. 區域視圖</span><span class="badge dark">狀態：${state.gameState}</span></div></div><div class="map-wrapper">${content}</div>`;
     }
-
-    function escapeAttr(str) {
-      return escapeHTML(str);
+    function renderReflectionSection() {
+      const allDone = Object.keys(state.museumResults).length === MUSEUMS.length;
+      return `<section class="section-card" id="reflection-section"><div class="section-pad"><h2 class="title">比較博物館結構</h2><div class="subtitle">為每一個博物館評分難度，並勾選符合各博物館的組織／呈現方式。</div></div><div class="section-body"><div class="summary-grid">${MUSEUMS.map(museum => `<div class="summary-card"><div class="micro-label">${museum.name}</div><strong>${state.museumResults[museum.id] ? formatTime(state.museumResults[museum.id].time) : '--:--'}</strong><div class="subtitle">${state.museumResults[museum.id] ? `目標：${escapeHTML(state.museumResults[museum.id].target)}` : '完成該博物館後才會記錄時間。'}</div></div>`).join('')}</div><div class="table-card star-table"><div class="label-row">⭐ 為每個博物館中找到目標的難度評分</div><table><thead><tr><th>博物館</th><th>難度評分</th></tr></thead><tbody>${MUSEUMS.map(museum => `<tr><td>${museum.name}</td><td><div class="star-row">${renderStars(state.museumDifficultyRatings[museum.id], n => `data-action="pick-museum-difficulty" data-museum-id="${museum.id}" data-stars="${n}" ${!allDone ? 'disabled' : ''}`)}</div></td></tr>`).join('')}</tbody></table></div><div class="table-card"><div class="label-row">☑️ 勾選符合各博物館的組織／呈現特徵</div><table><thead><tr><th>組織／呈現方式</th>${MUSEUMS.map(museum => `<th class="checkbox-cell">${museum.shortLabel}</th>`).join('')}</tr></thead><tbody>${COMPARISON_SCHEMES.map(scheme => `<tr><td>${escapeHTML(scheme)}</td>${MUSEUMS.map(museum => { const checked = state.comparisonChecks[scheme].includes(museum.id); return `<td class="checkbox-cell"><input type="checkbox" data-action="toggle-comparison" data-scheme="${escapeHTML(scheme)}" data-museum-id="${museum.id}" ${checked ? 'checked' : ''} ${!allDone ? 'disabled' : ''}></td>`; }).join('')}</tr>`).join('')}</tbody></table><div class="subtitle">請同時考慮正向與負向特徵，以呈現各博物館之間的差異。</div></div></div></section>`;
     }
-
+    function renderWritingSection() {
+      return `<section class="section-card" id="writing-section"><div class="section-pad"><h2 class="title">把搜尋經驗連結到段落結構</h2><div class="subtitle">觀察這個段落如何隨著句子推進而逐漸增加細節。</div></div><div class="section-body"><div class="prompt-box"><div class="label-row">📘 範例段落</div><p>${PARAGRAPH_SENTENCES.join(' ')}</p></div><div class="table-card star-table"><div class="label-row">📈 依照細節增加的程度為每一句評分</div><table><thead><tr><th>句子</th><th>細節評分</th></tr></thead><tbody>${PARAGRAPH_SENTENCES.map((sentence, index) => `<tr><td><strong>第 ${index + 1} 句</strong><div class="subtitle">${escapeHTML(sentence)}</div></td><td><div class="star-row">${renderStars(state.sentenceRatings[index], n => `data-action="pick-sentence-stars" data-index="${index}" data-stars="${n}"`)}</div></td></tr>`).join('')}</tbody></table></div><div class="prompt-box"><div class="label-row">🏛️ 這段文字最像哪一種博物館結構？</div><div class="pill-row">${MUSEUMS.map(museum => `<button class="pill-btn ${state.structureChoice === museum.id ? 'active' : ''}" data-action="pick-structure" data-museum-id="${museum.id}">${museum.name}</button>`).join('')}</div><textarea data-action="structure-why" placeholder="為什麼這個段落要這樣安排？">${escapeHTML(state.structureWhy)}</textarea><div class="subtitle">思考哪一個博物館最清楚地呈現「從大方向到越來越具體細節」的層次。</div></div></div></section>`;
+    }
+    function renderPracticeParagraph(paragraphNumber) {
+      const start = (paragraphNumber - 1) * 3;
+      const sentences = state.practiceOrder.slice(start, start + 3);
+      return `<div class="paragraph-block"><div class="label-row">🧩 第 ${paragraphNumber} 段</div>${sentences.map((sentence, index) => { const globalIndex = start + index; return `<div class="sentence-card ${sentence.anchor ? 'anchor' : ''} ${state.swappingSentenceId === sentence.id ? 'swapping' : ''}"><div>${escapeHTML(sentence.text)}</div><div class="move-stack">${sentence.anchor ? '' : `<button class="move-btn" data-action="move-sentence" data-index="${globalIndex}" data-direction="up">↑</button><button class="move-btn" data-action="move-sentence" data-index="${globalIndex}" data-direction="down">↓</button>`}</div></div>`; }).join('')}</div>`;
+    }
+    function paragraphPracticeCorrect() {
+      return [0,1,2].every(group => {
+        const slice = state.practiceOrder.slice(group * 3, group * 3 + 3);
+        return slice.map(sentence => sentence.paragraph).every(paragraph => paragraph === group + 1) && slice.map(sentence => sentence.type).join('|') === 'topic|support|example';
+      });
+    }
+    function renderPracticeSection() {
+      return `<section class="section-card" id="drag-section"><div class="section-pad"><h2 class="title">句子排序練習</h2><div class="subtitle">請重新排列這九個句子，讓相關想法留在同一段內，並使每一段都呈現「主題句 → 支持細節 → 例子」的順序。</div></div><div class="section-body">${[1,2,3].map(renderPracticeParagraph).join('')}<div class="prompt-box"><div class="feedback">${paragraphPracticeCorrect() ? '答對了：句子已經被分到正確的段落，並依照主題句、支持細節、例子的順序排列。' : '請用上下箭頭把相關想法重新分組，並讓每一段依照主題句、支持細節、例子的順序排列。'}</div></div></div></section>`;
+    }
+    function renderModal() {
+      if (!state.modal) return '';
+      if (state.modal.type === 'target-reveal') {
+        return `<div class="modal-backdrop"><div class="modal"><h3>${state.modal.museumName}：揭示目標</h3><p>這一座博物館的目標是 <strong>${escapeHTML(state.modal.target)}</strong>。</p><p>按下開始後，搜尋就會開始，頁面也會捲動到博物館視圖容器的最上方。</p><div class="button-row" style="margin-top:20px"><button class="btn btn-primary" data-action="start-revealed-search">開始搜尋</button><button class="btn" data-action="close-modal">留在這裡</button></div></div></div>`;
+      }
+      return `<div class="modal-backdrop"><div class="modal"><h3>${state.modal.museumName} 完成</h3><p>你找到 <strong>${escapeHTML(state.modal.target)}</strong>，花費時間為 <strong>${formatTime(state.modal.time)}</strong>。</p><p>該物品會繼續在區域視圖中高亮顯示，方便學生把搜尋路徑與最終結果連結起來。</p><div class="button-row" style="margin-top:20px"><button class="btn btn-primary" data-action="proceed-modal">${state.modal.allDone ? '前往下一個區塊' : `前往 ${state.modal.nextMuseumName}`}</button><button class="btn" data-action="close-modal">留在這裡</button></div></div></div>`;
+    }
+    function moveSentence(index, direction) {
+      const arr = [...state.practiceOrder];
+      const nextIndex = direction === 'up' ? index - 1 : index + 1;
+      if (nextIndex < 0 || nextIndex >= arr.length) return;
+      if (arr[index].anchor || arr[nextIndex].anchor) return;
+      state.swappingSentenceId = arr[index].id;
+      [arr[index], arr[nextIndex]] = [arr[nextIndex], arr[index]];
+      state.practiceOrder = arr;
+      render();
+      setTimeout(() => { state.swappingSentenceId = null; render(); }, 220);
+    }
+    function toggleComparison(scheme, museumId, checked) {
+      const current = new Set(state.comparisonChecks[scheme] || []);
+      if (checked) current.add(museumId); else current.delete(museumId);
+      state.comparisonChecks[scheme] = [...current];
+    }
     function attachEvents() {
-      document.querySelectorAll('[data-action="start-game"]').forEach(btn => {
-        btn.addEventListener('click', startGame);
-      });
-
-      document.querySelectorAll('[data-action="reset-game"]').forEach(btn => {
-        btn.addEventListener('click', resetGame);
-      });
-
-      document.querySelectorAll('[data-action="go-back"]').forEach(btn => {
-        btn.addEventListener('click', () => { if (!btn.disabled) goBack(); });
-      });
-
-      document.querySelectorAll('[data-action="go-home"]').forEach(btn => {
-        btn.addEventListener('click', () => { if (!btn.disabled) goHome(); });
-      });
-
-      document.querySelectorAll('[data-action="switch-museum"]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          activeMuseumId = btn.dataset.museumId;
-          resetForMuseumSwitch();
-          render();
-        });
-      });
-
-      document.querySelectorAll('[data-action="open-showroom"]').forEach(btn => {
-        btn.addEventListener('click', () => openShowroom(btn.dataset.showroomId));
-      });
-
-      document.querySelectorAll('[data-action="open-section"]').forEach(btn => {
-        btn.addEventListener('click', () => openSection(btn.dataset.sectionId));
-      });
-
-      document.querySelectorAll('[data-action="pick-item"]').forEach(btn => {
-        btn.addEventListener('click', () => handleItemClick(btn.dataset.item));
-      });
+      document.querySelectorAll('[data-action="start-game"]').forEach(btn => btn.addEventListener('click', () => prepareMuseum()));
+      document.querySelectorAll('[data-action="reset-game"]').forEach(btn => btn.addEventListener('click', resetExperience));
+      document.querySelectorAll('[data-action="go-back"]').forEach(btn => btn.addEventListener('click', () => { if (!btn.disabled) goBack(); }));
+      document.querySelectorAll('[data-action="go-home"]').forEach(btn => btn.addEventListener('click', () => { if (!btn.disabled) goHome(); }));
+      document.querySelectorAll('[data-action="switch-museum"]').forEach(btn => btn.addEventListener('click', () => { if (!btn.disabled) { state.activeMuseumIndex = Number(btn.dataset.museumIndex); stopTimer(); state.activeTarget = null; state.timerSeconds = 0; state.gameState = 'idle'; state.modal = null; resetNavigation(); render(); scrollToId('museum-view'); } }));
+      document.querySelectorAll('[data-action="open-showroom"]').forEach(btn => btn.addEventListener('click', () => openShowroom(btn.dataset.showroomId)));
+      document.querySelectorAll('[data-action="open-section"]').forEach(btn => btn.addEventListener('click', () => openSection(btn.dataset.sectionId)));
+      document.querySelectorAll('[data-action="pick-item"]').forEach(btn => btn.addEventListener('click', () => handleItemClick(btn.dataset.item)));
+      document.querySelectorAll('[data-action="start-revealed-search"]').forEach(btn => btn.addEventListener('click', startSearchAfterReveal));
+      document.querySelectorAll('[data-action="proceed-modal"]').forEach(btn => btn.addEventListener('click', proceedFromCompletion));
+      document.querySelectorAll('[data-action="close-modal"]').forEach(btn => btn.addEventListener('click', () => { state.modal = null; render(); }));
+      document.querySelectorAll('[data-action="pick-museum-difficulty"]').forEach(btn => btn.addEventListener('click', () => { state.museumDifficultyRatings[btn.dataset.museumId] = Number(btn.dataset.stars); render(); }));
+      document.querySelectorAll('[data-action="toggle-comparison"]').forEach(input => input.addEventListener('change', e => { toggleComparison(e.target.dataset.scheme, e.target.dataset.museumId, e.target.checked); }));
+      document.querySelectorAll('[data-action="pick-sentence-stars"]').forEach(btn => btn.addEventListener('click', () => { state.sentenceRatings[Number(btn.dataset.index)] = Number(btn.dataset.stars); render(); }));
+      document.querySelectorAll('[data-action="pick-structure"]').forEach(btn => btn.addEventListener('click', () => { state.structureChoice = btn.dataset.museumId; render(); }));
+      document.querySelectorAll('[data-action="structure-why"]').forEach(el => el.addEventListener('input', e => { state.structureWhy = e.target.value; }));
+      document.querySelectorAll('[data-action="move-sentence"]').forEach(btn => btn.addEventListener('click', () => moveSentence(Number(btn.dataset.index), btn.dataset.direction)));
     }
-
     function render() {
-      const app = document.getElementById('app');
-      app.innerHTML = `
-        <div class="app-shell">
-          <aside class="panel">${renderSidebar()}</aside>
-          <main class="panel">${renderMain()}</main>
-        </div>
-      `;
+      ensureLayouts();
+      if (!state.practiceOrder.length) state.practiceOrder = createInitialPracticeOrder();
+      document.getElementById('app').innerHTML = `<div class="app-stack"><div class="app-shell"><aside class="panel">${renderSidebar()}</aside><main class="panel">${renderMain()}</main></div>${renderReflectionSection()}${renderWritingSection()}${renderPracticeSection()}${renderFloatingTarget()}${renderModal()}</div>`;
       attachEvents();
     }
-
-    targets = generateTargets();
+    state.practiceOrder = createInitialPracticeOrder();
+    ensureLayouts();
     render();
   </script>
 </body>
