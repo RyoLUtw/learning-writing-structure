@@ -38,9 +38,9 @@
     .panel-body, .section-body { padding: 24px; }
     .title { font-size: 1.5rem; font-weight: 700; margin: 0; }
     .subtitle { color: var(--subtext); margin-top: 8px; line-height: 1.5; }
-    .info-box, .prompt-box { background: var(--muted); border-radius: 18px; padding: 16px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+    .info-box, .prompt-box, .table-card { background: var(--muted); border-radius: 18px; padding: 16px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
     .info-label, .label-row { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; color: #334155; margin-bottom: 12px; }
-    .badge-list, .pill-row, .star-row, .option-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .badge-list, .pill-row, .star-row { display: flex; flex-wrap: wrap; gap: 8px; }
     .badge { display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; border-radius: 999px; background: var(--badge); color: #334155; font-size: 0.8rem; font-weight: 700; }
     .badge.dark, .pill-btn.active { background: var(--accent); color: white; }
     .badge.done { background: #dcfce7; color: #166534; }
@@ -50,14 +50,14 @@
     .timer-value { font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; }
     button { font: inherit; cursor: pointer; border: none; }
     .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .btn, .pill-btn, .choice-btn, .star-btn {
+    .btn, .pill-btn, .star-btn, .move-btn {
       border-radius: 18px; padding: 12px 16px; font-weight: 600; border: 1px solid var(--line); background: white; color: #334155;
       transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
     }
-    .btn:hover, .pill-btn:hover, .choice-btn:hover, .star-btn:hover { transform: translateY(-1px); }
+    .btn:hover, .pill-btn:hover, .star-btn:hover, .move-btn:hover { transform: translateY(-1px); }
     .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
-    .btn:disabled, .pill-btn:disabled, .choice-btn:disabled, .star-btn:disabled { opacity: 0.45; cursor: default; transform: none; }
-    .choice-btn.active, .star-btn.active, .pill-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+    .btn:disabled, .pill-btn:disabled, .star-btn:disabled, .move-btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+    .star-btn.active, .pill-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
     .main-panel-header { padding: 20px 24px; border-bottom: 1px solid #e2e8f0; background: rgba(255,255,255,0.85); }
     .header-top, .summary-grid { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
     .museum-tabs, .view-badges, .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -100,24 +100,46 @@
     .shape-5 { border-radius: 28px; min-height: 96px; }
     .shape-6 { border-bottom-right-radius: 48px; border-top-left-radius: 32px; border-top-right-radius: 20px; border-bottom-left-radius: 20px; }
     .item-room.highlighted { background: var(--highlight); border-color: #ca8a04; box-shadow: 0 0 0 4px rgba(250,204,21,0.35); }
-    .summary-card, .table-card, .drop-zone, .drag-card { border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: white; }
-    .summary-card { flex: 1; min-width: 180px; }
+    .summary-card { flex: 1; min-width: 180px; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: white; }
     .summary-card strong { display: block; font-size: 1.2rem; margin-top: 6px; }
-    .comparison-group { display: grid; gap: 14px; margin-top: 18px; }
-    .option-list { display: grid; gap: 10px; }
-    .option-card.correct { border-color: var(--success); background: #f0fdf4; }
-    .option-card.incorrect { border-color: #ef4444; background: #fef2f2; }
-    .star-btn { font-size: 1.5rem; line-height: 1; padding: 10px 12px; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid var(--line); padding: 12px; vertical-align: top; }
-    th { background: #f8fafc; text-align: left; }
-    .sentence-chip { font-weight: 600; color: #475569; display: block; margin-bottom: 8px; }
-    .rating-cell .star-row { min-width: 220px; }
-    .paragraph-table td { min-width: 180px; }
-    .drop-zone.drag-over { border-color: var(--accent); background: #f8fafc; }
-    .drag-bank { display: grid; gap: 10px; }
-    .drag-card { cursor: grab; }
-    .drag-card.placed { background: #e2e8f0; }
+    th, td { border: 1px solid var(--line); padding: 12px; vertical-align: top; text-align: left; }
+    th { background: #f8fafc; }
+    .checkbox-cell { text-align: center; }
+    .star-grid { display: grid; gap: 14px; }
+    .star-table .star-row { flex-wrap: nowrap; }
+    .star-btn {
+      width: clamp(36px, 4vw, 48px);
+      height: clamp(36px, 4vw, 48px);
+      padding: 0;
+      border-radius: 50%;
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+    .floating-target {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 900;
+      width: min(320px, calc(100vw - 32px));
+      background: rgba(15, 23, 42, 0.96);
+      color: white;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 20px 50px rgba(15,23,42,0.28);
+    }
+    .floating-target .micro-label { color: #cbd5e1; }
+    .floating-target .target-title { font-size: 1.15rem; font-weight: 700; margin-top: 8px; }
+    .floating-target .target-sub { margin-top: 8px; color: #e2e8f0; font-size: 0.92rem; line-height: 1.45; }
+    .paragraph-block { display: grid; gap: 12px; margin-bottom: 20px; }
+    .sentence-card { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: white; }
+    .sentence-card.locked { border-color: var(--accent); background: #f8fafc; }
+    .sentence-tag { display: inline-flex; padding: 4px 8px; border-radius: 999px; background: #e2e8f0; font-size: 0.78rem; font-weight: 700; margin-bottom: 8px; }
+    .move-stack { display: grid; gap: 8px; }
+    .move-btn { width: 46px; height: 46px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
     .feedback { margin-top: 12px; font-weight: 600; }
     .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.55); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
     .modal { max-width: 560px; width: 100%; background: white; border-radius: 28px; padding: 24px; box-shadow: 0 24px 60px rgba(15,23,42,0.25); }
@@ -131,7 +153,9 @@
     @media (max-width: 700px) {
       body { padding: 12px; }
       .button-row { grid-template-columns: 1fr; }
-      .rating-cell .star-row { min-width: 0; }
+      .floating-target { right: 12px; bottom: 12px; width: calc(100vw - 24px); }
+      .sentence-card { grid-template-columns: 1fr; }
+      .move-stack { grid-auto-flow: column; }
     }
   </style>
 </head>
@@ -162,48 +186,36 @@
       { id: "structured", shortLabel: "Museum C", name: "Museum C", labelMode: "category", organization: "structured" }
     ];
     const ROOM_SHAPES = ["shape-1", "shape-2", "shape-3", "shape-4", "shape-5", "shape-6"];
-    const COMPARISON_QUESTIONS = [
-      {
-        id: "a_b",
-        title: "Museum A vs Museum B: organization of relevant items",
-        prompt: "Which statement best compares how Museums A and B organize the items you need?",
-        answer: "ab2",
-        options: [
-          { id: "ab1", text: "Museum A and Museum B both place related items into clear groups with the same helpful labels." },
-          { id: "ab2", text: "Museum B groups related items more clearly, while Museum A scatters relevant items more randomly." },
-          { id: "ab3", text: "Museum A groups relevant items more clearly than Museum B because its labels are shorter." },
-          { id: "ab4", text: "Neither museum uses organization to help visitors narrow the search." }
-        ]
-      },
-      {
-        id: "b_c",
-        title: "Museum B vs Museum C: presentation of level of detail",
-        prompt: "Which statement best compares how Museums B and C present levels of detail?",
-        answer: "bc3",
-        options: [
-          { id: "bc1", text: "Museum B and Museum C both stay at the same level of detail from top to bottom." },
-          { id: "bc2", text: "Museum B is more detailed because it hides section labels, while Museum C stays general." },
-          { id: "bc3", text: "Museum C shows levels of detail more clearly because it names categories, then subcategories, then specific items." },
-          { id: "bc4", text: "Museum B shows more levels of detail because it removes all category names." }
-        ]
-      }
+    const COMPARISON_SCHEMES = [
+      "All related items are put in the same showroom.",
+      "Clear labels quickly show the common thing among all exhibit items.",
+      "The route moves from broad categories to narrower subgroups.",
+      "Visitors must rely on random scanning instead of helpful grouping.",
+      "The display hides levels of detail, so everything feels equally specific.",
+      "The organization helps visitors predict where a matching item will be."
     ];
     const PARAGRAPH_SENTENCES = [
       "Visitors enter the science museum through a bright central hall that introduces the main theme of innovation.",
       "From there, each wing focuses on a related idea, such as energy, transportation, or communication, so the exhibits feel connected.",
       "Inside the transportation wing, one display shows a timeline of bicycles, cars, and trains to illustrate how each invention solved a different problem."
     ];
-    const DRAG_ITEMS = [
-      { id: "p1-topic", paragraph: 1, level: "topic", text: "School gardens can teach students how communities work together." },
-      { id: "p1-support", paragraph: 1, level: "support", text: "They give each class a shared job, such as planting, watering, and checking what the plants need." },
-      { id: "p1-example", paragraph: 1, level: "example", text: "For example, one class might measure tomato growth each week and record the changes on a chart." },
-      { id: "p2-topic", paragraph: 2, level: "topic", text: "Clear museum labels help visitors move from broad ideas to precise information." },
-      { id: "p2-support", paragraph: 2, level: "support", text: "A strong layout first names the big section, then narrows the search with smaller grouped displays." },
-      { id: "p2-example", paragraph: 2, level: "example", text: "For instance, a visitor can follow Kitchen → Cookware → pans instead of scanning every room at once." },
-      { id: "p3-topic", paragraph: 3, level: "topic", text: "Good paragraphs organize ideas in a way that helps readers follow the writer’s thinking." },
-      { id: "p3-support", paragraph: 3, level: "support", text: "Writers often begin with a main point, add a supporting detail, and end with a specific illustration." },
-      { id: "p3-example", paragraph: 3, level: "example", text: "For example, a writer could introduce recycling, explain how sorting works, and then describe one classroom recycling station." }
-    ];
+    const PARAGRAPH_PRACTICE = {
+      1: [
+        { id: "p1-topic", type: "topic", locked: true, text: "School gardens can teach students how communities work together." },
+        { id: "p1-support", type: "support", locked: false, text: "They give each class a shared job, such as planting, watering, and checking what the plants need." },
+        { id: "p1-example", type: "example", locked: false, text: "For example, one class might measure tomato growth each week and record the changes on a chart." }
+      ],
+      2: [
+        { id: "p2-support", type: "support", locked: true, text: "A strong layout first names the big section, then narrows the search with smaller grouped displays." },
+        { id: "p2-topic", type: "topic", locked: false, text: "Clear museum labels help visitors move from broad ideas to precise information." },
+        { id: "p2-example", type: "example", locked: false, text: "For instance, a visitor can follow Kitchen → Cookware → pans instead of scanning every room at once." }
+      ],
+      3: [
+        { id: "p3-example", type: "example", locked: true, text: "For example, a writer could introduce recycling, explain how sorting works, and then describe one classroom recycling station." },
+        { id: "p3-topic", type: "topic", locked: false, text: "Good paragraphs organize ideas in a way that helps readers follow the writer’s thinking." },
+        { id: "p3-support", type: "support", locked: false, text: "Writers often begin with a main point, add a supporting detail, and end with a specific illustration." }
+      ]
+    };
 
     let state = {
       activeMuseumIndex: 0,
@@ -212,25 +224,19 @@
       selectedSectionId: null,
       layouts: {},
       museumResults: {},
+      museumDifficultyRatings: { random: 0, listed: 0, structured: 0 },
+      comparisonChecks: Object.fromEntries(COMPARISON_SCHEMES.map(scheme => [scheme, []])),
       timerSeconds: 0,
       timerId: null,
       gameState: "idle",
       activeTarget: null,
       highlightedItem: null,
       modal: null,
-      comparisons: {},
-      comparisonWhy: {},
-      overallDifficulty: "",
-      overallDifficultyWhy: "",
       paragraphOverallRating: 0,
       sentenceRatings: [0, 0, 0],
       structureChoice: null,
       structureWhy: "",
-      dragPlacements: {
-        p1: { topic: null, support: null, example: null },
-        p2: { topic: null, support: null, example: null },
-        p3: { topic: null, support: null, example: null }
-      }
+      paragraphOrders: {}
     };
 
     function shuffle(array) { const arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
@@ -239,7 +245,18 @@
     function formatTime(totalSeconds) { const minutes = Math.floor(totalSeconds / 60); const seconds = String(totalSeconds % 60).padStart(2, "0"); return `${minutes}:${seconds}`; }
     function escapeHTML(str) { return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;"); }
     function pluralizeItem(item) { return item.endsWith("s") ? item : `${item}s`; }
-    function renderStars(value, attrs) { return [1,2,3,4,5].map(n => `<button class="star-btn ${value >= n ? "active" : ""}" ${attrs(n)}>★</button>`).join(""); }
+    function renderStars(value, attrs) { return [1,2,3,4,5].map(n => `<button class="star-btn ${value >= n ? 'active' : ''}" ${attrs(n)}>★</button>`).join(''); }
+    function getMuseumIndexById(id) { return MUSEUMS.findIndex(museum => museum.id === id); }
+
+    function createInitialParagraphOrders() {
+      const orders = {};
+      Object.entries(PARAGRAPH_PRACTICE).forEach(([key, sentences]) => {
+        const locked = sentences.find(sentence => sentence.locked);
+        const others = shuffle(sentences.filter(sentence => !sentence.locked));
+        orders[key] = [locked, ...others];
+      });
+      return orders;
+    }
 
     function buildStructuredMuseum(labelMode) {
       return Object.entries(SHOWROOM_SECTIONS).map(([showroomName, sections]) => {
@@ -269,8 +286,7 @@
       const museum = MUSEUMS[index];
       const layout = state.layouts[museum.id] || buildMuseum(museum);
       state.layouts[museum.id] = layout;
-      const pool = getLastShowroom(layout).sections.flatMap(section => section.items);
-      return shuffle(pool)[0];
+      return shuffle(getLastShowroom(layout).sections.flatMap(section => section.items))[0];
     }
     function stopTimer() { if (state.timerId) { clearInterval(state.timerId); state.timerId = null; } }
     function scrollToId(id) { document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }); }
@@ -283,8 +299,7 @@
       state.activeTarget = pickTargetForMuseum(index);
       state.timerSeconds = 0;
       state.gameState = "ready";
-      const museum = MUSEUMS[index];
-      state.modal = { type: "target-reveal", museumName: museum.name, target: state.activeTarget };
+      state.modal = { type: "target-reveal", museumName: MUSEUMS[index].name, target: state.activeTarget };
       render();
       scrollToId("museum-view");
     }
@@ -299,21 +314,19 @@
       stopTimer();
       state.layouts = {};
       state.museumResults = {};
+      state.museumDifficultyRatings = { random: 0, listed: 0, structured: 0 };
+      state.comparisonChecks = Object.fromEntries(COMPARISON_SCHEMES.map(scheme => [scheme, []]));
       state.activeMuseumIndex = 0;
       state.activeTarget = null;
       state.timerSeconds = 0;
       state.gameState = "idle";
       state.highlightedItem = null;
       state.modal = null;
-      state.comparisons = {};
-      state.comparisonWhy = {};
-      state.overallDifficulty = "";
-      state.overallDifficultyWhy = "";
       state.paragraphOverallRating = 0;
       state.sentenceRatings = [0, 0, 0];
       state.structureChoice = null;
       state.structureWhy = "";
-      state.dragPlacements = { p1: { topic: null, support: null, example: null }, p2: { topic: null, support: null, example: null }, p3: { topic: null, support: null, example: null } };
+      state.paragraphOrders = createInitialParagraphOrders();
       resetNavigation();
       ensureLayouts();
       render();
@@ -352,11 +365,11 @@
     }
     function renderMuseumView(layout) {
       const leftWing = layout.slice(0, 3), rightWing = layout.slice(3, 6), lastShowroom = getLastShowroom(layout);
-      return `<div class="blueprint" id="museum-view"><div class="lobby"><div class="micro-label">Main lobby</div><div class="section-title">Museum View</div><div class="subtitle-text">The target is always hidden in the final showroom. Open rooms, move down through the layers, and stop the timer by clicking the correct exhibit.</div></div><div class="prompt-box"><strong>Target:</strong> ${state.activeTarget ? `<span class="badge dark">${escapeHTML(state.activeTarget)}</span>` : '<span class="badge">Start to reveal the target</span>'}<div class="subtitle" style="margin-top:10px">Final showroom for this run: <strong>${escapeHTML(lastShowroom.trueName || lastShowroom.name)}</strong>.</div></div><div class="two-wing"><div class="wing">${leftWing.map((showroom, index) => `<div class="connector-row-left">${roomHTML({ title: showroom.name, subtitle: showroom.id === lastShowroom.id ? "Final showroom" : "Showroom", meta: `${showroom.sections.length} sections`, icon: showroom.id === lastShowroom.id ? "🎯" : "🏛️", shapeClass: ROOM_SHAPES[index % ROOM_SHAPES.length], doorSide: "right", dataAttrs: `data-action="open-showroom" data-showroom-id="${showroom.id}"` })}<div class="connector-right"></div></div>`).join("")}</div><div class="corridor-vertical"><div class="micro-label">Central</div><div class="vertical-text">Corridor</div><div class="micro-label">Hall</div></div><div class="wing">${rightWing.map((showroom, index) => `<div class="connector-row-right"><div class="connector-left"></div>${roomHTML({ title: showroom.name, subtitle: showroom.id === lastShowroom.id ? "Final showroom" : "Showroom", meta: `${showroom.sections.length} sections`, icon: showroom.id === lastShowroom.id ? "🎯" : "🏛️", shapeClass: ROOM_SHAPES[(index + 3) % ROOM_SHAPES.length], doorSide: "left", dataAttrs: `data-action="open-showroom" data-showroom-id="${showroom.id}"` })}</div>`).join("")}</div></div></div>`;
+      return `<div class="blueprint" id="museum-view"><div class="lobby"><div class="micro-label">Main lobby</div><div class="section-title">Museum View</div><div class="subtitle-text">The target is always hidden in the final showroom. Open rooms, move down through the layers, and stop the timer by clicking the correct exhibit.</div></div><div class="prompt-box"><strong>Final showroom for this run:</strong> ${escapeHTML(lastShowroom.trueName || lastShowroom.name)}<div class="subtitle" style="margin-top:10px">The floating target card at the bottom-right stays visible until all museum challenges are complete.</div></div><div class="two-wing"><div class="wing">${leftWing.map((showroom, index) => `<div class="connector-row-left">${roomHTML({ title: showroom.name, subtitle: showroom.id === lastShowroom.id ? "Final showroom" : "Showroom", meta: `${showroom.sections.length} sections`, icon: showroom.id === lastShowroom.id ? "🎯" : "🏛️", shapeClass: ROOM_SHAPES[index % ROOM_SHAPES.length], doorSide: "right", dataAttrs: `data-action="open-showroom" data-showroom-id="${showroom.id}"` })}<div class="connector-right"></div></div>`).join('')}</div><div class="corridor-vertical"><div class="micro-label">Central</div><div class="vertical-text">Corridor</div><div class="micro-label">Hall</div></div><div class="wing">${rightWing.map((showroom, index) => `<div class="connector-row-right"><div class="connector-left"></div>${roomHTML({ title: showroom.name, subtitle: showroom.id === lastShowroom.id ? "Final showroom" : "Showroom", meta: `${showroom.sections.length} sections`, icon: showroom.id === lastShowroom.id ? "🎯" : "🏛️", shapeClass: ROOM_SHAPES[(index + 3) % ROOM_SHAPES.length], doorSide: "left", dataAttrs: `data-action="open-showroom" data-showroom-id="${showroom.id}"` })}</div>`).join('')}</div></div></div>`;
     }
     function renderShowroomView(selectedShowroom) {
       const sections = selectedShowroom.sections, half = Math.ceil(sections.length / 2), wings = [sections.slice(0, half), sections.slice(half)];
-      return `<div class="blueprint simple-grid" id="museum-view"><div class="section-header-box"><div class="micro-label">Current showroom</div><div class="section-title">${escapeHTML(selectedShowroom.trueName)}</div><div class="subtitle-text">Choose a section to inspect the items inside it.</div></div><div class="two-wing"><div class="wing">${wings[0].map((section, index) => `<div class="connector-row-left">${roomHTML({ title: section.name, subtitle: "Section", meta: `${section.items.length} items`, icon: "🗺️", shapeClass: ROOM_SHAPES[(index + 1) % ROOM_SHAPES.length], doorSide: "right", dataAttrs: `data-action="open-section" data-section-id="${section.id}"` })}<div class="connector-right"></div></div>`).join("")}</div><div class="corridor-vertical"><div class="micro-label">Section</div><div class="vertical-text">Corridor</div><div class="micro-label">Path</div></div><div class="wing">${wings[1].map((section, index) => `<div class="connector-row-right"><div class="connector-left"></div>${roomHTML({ title: section.name, subtitle: "Section", meta: `${section.items.length} items`, icon: "🗺️", shapeClass: ROOM_SHAPES[(index + 3) % ROOM_SHAPES.length], doorSide: "left", dataAttrs: `data-action="open-section" data-section-id="${section.id}"` })}</div>`).join("")}</div></div></div>`;
+      return `<div class="blueprint simple-grid" id="museum-view"><div class="section-header-box"><div class="micro-label">Current showroom</div><div class="section-title">${escapeHTML(selectedShowroom.trueName)}</div><div class="subtitle-text">Choose a section to inspect the items inside it.</div></div><div class="two-wing"><div class="wing">${wings[0].map((section, index) => `<div class="connector-row-left">${roomHTML({ title: section.name, subtitle: "Section", meta: `${section.items.length} items`, icon: "🗺️", shapeClass: ROOM_SHAPES[(index + 1) % ROOM_SHAPES.length], doorSide: "right", dataAttrs: `data-action="open-section" data-section-id="${section.id}"` })}<div class="connector-right"></div></div>`).join('')}</div><div class="corridor-vertical"><div class="micro-label">Section</div><div class="vertical-text">Corridor</div><div class="micro-label">Path</div></div><div class="wing">${wings[1].map((section, index) => `<div class="connector-row-right"><div class="connector-left"></div>${roomHTML({ title: section.name, subtitle: "Section", meta: `${section.items.length} items`, icon: "🗺️", shapeClass: ROOM_SHAPES[(index + 3) % ROOM_SHAPES.length], doorSide: "left", dataAttrs: `data-action="open-section" data-section-id="${section.id}"` })}</div>`).join('')}</div></div></div>`;
     }
     function renderSectionView(selectedSection) {
       const labels = selectedSection.items.map(pluralizeItem), midpoint = Math.ceil(labels.length / 2);
@@ -366,47 +379,61 @@
         const inner = `<button class="floor-room shape-5 item-room ${highlighted}" data-action="pick-item" data-item="${escapeHTML(item)}"><div class="room-head"><div class="room-title">${escapeHTML(label)}</div><div class="badge-list">${targetBadge}${highlighted ? '<span class="badge done">Found</span>' : ''}</div></div></button>`;
         return side === "left" ? `<div class="connector-row-left">${inner}<div class="connector-right"></div></div>` : `<div class="connector-row-right"><div class="connector-left"></div>${inner}</div>`;
       }
-      return `<div class="blueprint simple-grid" id="museum-view"><div class="section-header-box"><div class="micro-label">Current section</div><div class="section-title">${escapeHTML(selectedSection.trueName)}</div><div class="subtitle-text">Click the correct exhibit to stop the timer.</div></div><div class="two-wing"><div class="wing">${labels.slice(0, midpoint).map((label, index) => itemButton(label, selectedSection.items[index], "left")).join("")}</div><div class="corridor-vertical"><div class="micro-label">Exhibit</div><div class="vertical-text">Corridor</div><div class="micro-label">Route</div></div><div class="wing">${labels.slice(midpoint).map((label, offset) => itemButton(label, selectedSection.items[midpoint + offset], "right")).join("")}</div></div></div>`;
+      return `<div class="blueprint simple-grid" id="museum-view"><div class="section-header-box"><div class="micro-label">Current section</div><div class="section-title">${escapeHTML(selectedSection.trueName)}</div><div class="subtitle-text">Click the correct exhibit to stop the timer.</div></div><div class="two-wing"><div class="wing">${labels.slice(0, midpoint).map((label, index) => itemButton(label, selectedSection.items[index], "left")).join('')}</div><div class="corridor-vertical"><div class="micro-label">Exhibit</div><div class="vertical-text">Corridor</div><div class="micro-label">Route</div></div><div class="wing">${labels.slice(midpoint).map((label, offset) => itemButton(label, selectedSection.items[midpoint + offset], "right")).join('')}</div></div></div>`;
     }
     function renderSidebar() {
       const activeMuseum = getActiveMuseum();
-      return `<div class="panel-header"><h1 class="title">Museum Search Challenge</h1><div class="subtitle">Search one target per museum, compare the layouts, and transfer what you learn into paragraph structure.</div></div><div class="panel-body"><div class="info-box"><div class="info-label">🎯 Target</div><div class="badge-list">${state.activeTarget ? `<span class="badge dark">${escapeHTML(state.activeTarget)}</span>` : '<span class="badge">The reveal modal will show the target</span>'}</div></div><div class="info-box"><div class="progress-meta"><div class="info-label" style="margin:0">⏱️ Stop timer</div><div class="timer-value">${formatTime(state.timerSeconds)}</div></div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(progressPercent(),100)}%"></div></div><div class="subtitle" style="margin-top:10px">The timer starts only after the modal’s start button is clicked.</div></div><div class="info-box"><div class="info-label">🏁 Museum progress</div><div class="badge-list">${MUSEUMS.map((museum, index) => `<span class="badge ${state.museumResults[museum.id] ? 'done' : index === state.activeMuseumIndex ? 'dark' : ''}">${museum.shortLabel}${state.museumResults[museum.id] ? ` · ${formatTime(state.museumResults[museum.id].time)}` : ''}</span>`).join("")}</div><div class="subtitle" style="margin-top:10px">Active museum: ${activeMuseum.name}</div></div><div class="button-row"><button class="btn btn-primary" data-action="start-game">${state.gameState === 'running' || state.gameState === 'ready' ? `Restart ${activeMuseum.name}` : 'Reveal target'}</button><button class="btn" data-action="reset-game">↻ Reset all</button></div></div>`;
+      return `<div class="panel-header"><h1 class="title">Museum Search Challenge</h1><div class="subtitle">Search one target per museum, compare the layouts, and transfer what you learn into paragraph structure.</div></div><div class="panel-body"><div class="info-box"><div class="progress-meta"><div class="info-label" style="margin:0">⏱️ Stop timer</div><div class="timer-value">${formatTime(state.timerSeconds)}</div></div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(progressPercent(),100)}%"></div></div><div class="subtitle" style="margin-top:10px">The timer starts only after the reveal modal’s start button is clicked.</div></div><div class="info-box"><div class="info-label">🏁 Museum progress</div><div class="badge-list">${MUSEUMS.map((museum, index) => `<span class="badge ${state.museumResults[museum.id] ? 'done' : index === state.activeMuseumIndex ? 'dark' : ''}">${museum.shortLabel}${state.museumResults[museum.id] ? ` · ${formatTime(state.museumResults[museum.id].time)}` : ''}</span>`).join('')}</div><div class="subtitle" style="margin-top:10px">Active museum: ${activeMuseum.name}</div></div><div class="button-row"><button class="btn btn-primary" data-action="start-game">${state.gameState === 'running' || state.gameState === 'ready' ? `Restart ${activeMuseum.name}` : 'Reveal target'}</button><button class="btn" data-action="reset-game">↻ Reset all</button></div></div>`;
+    }
+    function renderFloatingTarget() {
+      if (!state.activeTarget || state.gameState === 'complete') return '';
+      return `<div class="floating-target"><div class="micro-label">Current target</div><div class="target-title">${escapeHTML(state.activeTarget)}</div><div class="target-sub">Search inside the final showroom for ${getActiveMuseum().name}. This card hides once all museum challenges are complete.</div></div>`;
     }
     function renderMain() {
       const activeMuseum = getActiveMuseum(), layout = getLayout(), selectedShowroom = getSelectedShowroom(layout), selectedSection = getSelectedSection(selectedShowroom);
       let content = renderMuseumView(layout);
       if (state.view === "showroom" && selectedShowroom) content = renderShowroomView(selectedShowroom);
       if (state.view === "section" && selectedSection) content = renderSectionView(selectedSection);
-      return `<div class="main-panel-header"><div class="header-top"><h2 class="title" style="margin:0">${activeMuseum.name}</h2><div class="top-actions"><button class="pill-btn" data-action="go-back" ${state.view === 'museum' ? 'disabled' : ''}>← Back</button><button class="pill-btn" data-action="go-home" ${state.view === 'museum' ? 'disabled' : ''}>⌂ Top level</button></div></div><div class="museum-tabs">${MUSEUMS.map((museum, index) => `<button class="pill-btn ${index === state.activeMuseumIndex ? 'active' : ''}" data-action="switch-museum" data-museum-index="${index}" ${state.gameState === 'running' ? 'disabled' : ''}>${museum.shortLabel}</button>`).join("")}</div><div class="view-badges" style="margin-top:12px;"><span class="badge ${state.view === 'museum' ? 'dark' : ''}">1. Museum view</span><span class="badge ${state.view === 'showroom' ? 'dark' : ''}">2. Showroom view</span><span class="badge ${state.view === 'section' ? 'dark' : ''}">3. Section view</span><span class="badge dark">Status: ${state.gameState}</span></div></div><div class="map-wrapper">${content}</div>`;
-    }
-    function renderComparisonCard(question, allDone) {
-      const answer = state.comparisons[question.id];
-      return `<div class="comparison-group"><div class="label-row">🧩 ${escapeHTML(question.title)}</div><div class="subtitle">${escapeHTML(question.prompt)}</div><div class="option-list">${question.options.map(option => { const chosen = answer === option.id; const cls = chosen ? (option.id === question.answer ? 'correct' : 'incorrect') : ''; return `<button class="choice-btn option-card ${cls} ${chosen ? 'active' : ''}" data-action="pick-comparison" data-question-id="${question.id}" data-option-id="${option.id}" ${!allDone ? 'disabled' : ''}>${escapeHTML(option.text)}</button>`; }).join("")}</div><textarea data-action="comparison-why" data-question-id="${question.id}" placeholder="Explain your answer..." ${!allDone ? 'disabled' : ''}>${escapeHTML(state.comparisonWhy[question.id] || "")}</textarea></div>`;
+      return `<div class="main-panel-header"><div class="header-top"><h2 class="title" style="margin:0">${activeMuseum.name}</h2><div class="top-actions"><button class="pill-btn" data-action="go-back" ${state.view === 'museum' ? 'disabled' : ''}>← Back</button><button class="pill-btn" data-action="go-home" ${state.view === 'museum' ? 'disabled' : ''}>⌂ Top level</button></div></div><div class="museum-tabs">${MUSEUMS.map((museum, index) => `<button class="pill-btn ${index === state.activeMuseumIndex ? 'active' : ''}" data-action="switch-museum" data-museum-index="${index}" ${state.gameState === 'running' ? 'disabled' : ''}>${museum.shortLabel}</button>`).join('')}</div><div class="view-badges" style="margin-top:12px;"><span class="badge ${state.view === 'museum' ? 'dark' : ''}">1. Museum view</span><span class="badge ${state.view === 'showroom' ? 'dark' : ''}">2. Showroom view</span><span class="badge ${state.view === 'section' ? 'dark' : ''}">3. Section view</span><span class="badge dark">Status: ${state.gameState}</span></div></div><div class="map-wrapper">${content}</div>`;
     }
     function renderReflectionSection() {
       const allDone = Object.keys(state.museumResults).length === MUSEUMS.length;
-      return `<section class="section-card" id="reflection-section"><div class="section-pad"><h2 class="title">Compare the museum structures</h2><div class="subtitle">Use the recorded times and your observations to compare organization and levels of detail.</div></div><div class="section-body"><div class="summary-grid">${MUSEUMS.map(museum => `<div class="summary-card"><div class="micro-label">${museum.name}</div><strong>${state.museumResults[museum.id] ? formatTime(state.museumResults[museum.id].time) : '--:--'}</strong><div class="subtitle">${state.museumResults[museum.id] ? `Target: ${escapeHTML(state.museumResults[museum.id].target)}` : 'Complete the museum to record a time.'}</div></div>`).join("")}</div><div class="prompt-box"><div class="label-row">🧠 Overall difficulty</div><div class="subtitle">Which museum felt most difficult overall, and why?</div><textarea data-action="overall-difficulty" placeholder="For example: Museum A was hardest because the useful items were least organized." ${!allDone ? 'disabled' : ''}>${escapeHTML(state.overallDifficultyWhy)}</textarea></div>${COMPARISON_QUESTIONS.map(question => renderComparisonCard(question, allDone)).join("")}</div></section>`;
+      return `<section class="section-card" id="reflection-section"><div class="section-pad"><h2 class="title">Compare the museum structures</h2><div class="subtitle">Rate each museum’s difficulty and check which organizational or presentation schemes match each museum.</div></div><div class="section-body"><div class="summary-grid">${MUSEUMS.map(museum => `<div class="summary-card"><div class="micro-label">${museum.name}</div><strong>${state.museumResults[museum.id] ? formatTime(state.museumResults[museum.id].time) : '--:--'}</strong><div class="subtitle">${state.museumResults[museum.id] ? `Target: ${escapeHTML(state.museumResults[museum.id].target)}` : 'Complete the museum to record a time.'}</div></div>`).join('')}</div><div class="table-card star-table"><div class="label-row">⭐ Rate how difficult it was to find the target in each museum</div><table><thead><tr><th>Museum</th><th>Difficulty rating</th></tr></thead><tbody>${MUSEUMS.map(museum => `<tr><td>${museum.name}</td><td><div class="star-row">${renderStars(state.museumDifficultyRatings[museum.id], n => `data-action="pick-museum-difficulty" data-museum-id="${museum.id}" data-stars="${n}" ${!allDone ? 'disabled' : ''}`)}</div></td></tr>`).join('')}</tbody></table></div><div class="table-card"><div class="label-row">☑️ Check the scheme(s) that match each museum</div><table><thead><tr><th>Organization / presentation scheme</th>${MUSEUMS.map(museum => `<th class="checkbox-cell">${museum.shortLabel}</th>`).join('')}</tr></thead><tbody>${COMPARISON_SCHEMES.map(scheme => `<tr><td>${escapeHTML(scheme)}</td>${MUSEUMS.map(museum => { const checked = state.comparisonChecks[scheme].includes(museum.id); return `<td class="checkbox-cell"><input type="checkbox" data-action="toggle-comparison" data-scheme="${escapeHTML(scheme)}" data-museum-id="${museum.id}" ${checked ? 'checked' : ''} ${!allDone ? 'disabled' : ''}></td>`; }).join('')}</tr>`).join('')}</tbody></table><div class="subtitle">Include both positive and negative schemes to show how the museums differ.</div></div></div></section>`;
     }
     function renderWritingSection() {
-      return `<section class="section-card" id="writing-section"><div class="section-pad"><h2 class="title">Connect the search to paragraph structure</h2><div class="subtitle">Notice how the paragraph grows more detailed from sentence to sentence.</div></div><div class="section-body"><div class="prompt-box"><div class="label-row">📘 Example paragraph</div><p>${PARAGRAPH_SENTENCES.join(' ')}</p></div><div class="prompt-box"><div class="label-row">⭐ Overall level of detail</div><div class="star-row">${renderStars(state.paragraphOverallRating, n => `data-action="pick-overall-stars" data-stars="${n}"`)}</div><div class="subtitle">Clicking the fifth star highlights all five stars to show the highest level.</div></div><div class="table-card"><div class="label-row">📈 Rate each sentence as the detail increases</div><table><thead><tr><th>Sentence</th><th>Detail rating</th></tr></thead><tbody>${PARAGRAPH_SENTENCES.map((sentence, index) => `<tr><td><span class="sentence-chip">Sentence ${index + 1}</span>${escapeHTML(sentence)}</td><td class="rating-cell"><div class="star-row">${renderStars(state.sentenceRatings[index], n => `data-action="pick-sentence-stars" data-index="${index}" data-stars="${n}"`)}</div></td></tr>`).join("")}</tbody></table></div><div class="prompt-box"><div class="label-row">🏛️ Which museum structure does the writing resemble?</div><div class="pill-row">${MUSEUMS.map(museum => `<button class="pill-btn ${state.structureChoice === museum.id ? 'active' : ''}" data-action="pick-structure" data-museum-id="${museum.id}">${museum.name}</button>`).join("")}</div><textarea data-action="structure-why" placeholder="Why is the paragraph structured this way?">${escapeHTML(state.structureWhy)}</textarea><div class="subtitle">The paragraph resembles the museum that most clearly moves from a broad label to smaller, more detailed levels.</div></div></div></section>`;
+      return `<section class="section-card" id="writing-section"><div class="section-pad"><h2 class="title">Connect the search to paragraph structure</h2><div class="subtitle">Notice how the paragraph grows more detailed from sentence to sentence.</div></div><div class="section-body"><div class="prompt-box"><div class="label-row">📘 Example paragraph</div><p>${PARAGRAPH_SENTENCES.join(' ')}</p></div><div class="prompt-box"><div class="label-row">⭐ Overall level of detail</div><div class="star-row">${renderStars(state.paragraphOverallRating, n => `data-action="pick-overall-stars" data-stars="${n}"`)}</div><div class="subtitle">The star buttons resize automatically to fit the viewport while still showing all five levels.</div></div><div class="table-card star-table"><div class="label-row">📈 Rate each sentence as the detail increases</div><table><thead><tr><th>Sentence</th><th>Detail rating</th></tr></thead><tbody>${PARAGRAPH_SENTENCES.map((sentence, index) => `<tr><td><strong>Sentence ${index + 1}</strong><div class="subtitle">${escapeHTML(sentence)}</div></td><td><div class="star-row">${renderStars(state.sentenceRatings[index], n => `data-action="pick-sentence-stars" data-index="${index}" data-stars="${n}"`)}</div></td></tr>`).join('')}</tbody></table></div><div class="prompt-box"><div class="label-row">🏛️ Which museum structure does the writing resemble?</div><div class="pill-row">${MUSEUMS.map(museum => `<button class="pill-btn ${state.structureChoice === museum.id ? 'active' : ''}" data-action="pick-structure" data-museum-id="${museum.id}">${museum.name}</button>`).join('')}</div><textarea data-action="structure-why" placeholder="Why is the paragraph structured this way?">${escapeHTML(state.structureWhy)}</textarea><div class="subtitle">Think about which museum most clearly moves from a broad label to increasingly specific levels of detail.</div></div></div></section>`;
     }
-    function getPlacedIds() {
-      const ids = [];
-      Object.values(state.dragPlacements).forEach(paragraph => Object.values(paragraph).forEach(value => value && ids.push(value)));
-      return new Set(ids);
+    function renderPracticeParagraph(paragraphNumber) {
+      const sentences = state.paragraphOrders[String(paragraphNumber)];
+      const anchorType = paragraphNumber === 1 ? 'topic' : paragraphNumber === 2 ? 'support' : 'example';
+      return `<div class="paragraph-block"><div class="label-row">🧩 Paragraph ${paragraphNumber}</div><div class="subtitle">This paragraph keeps the <strong>${anchorType}</strong> sentence locked. Use the arrows to arrange the other two sentences into the correct order.</div>${sentences.map((sentence, index) => `<div class="sentence-card ${sentence.locked ? 'locked' : ''}"><div><div class="sentence-tag">${sentence.locked ? 'Locked anchor' : 'Moveable sentence'}</div><div>${escapeHTML(sentence.text)}</div></div><div class="move-stack">${sentence.locked ? '' : `<button class="move-btn" data-action="move-sentence" data-paragraph="${paragraphNumber}" data-index="${index}" data-direction="up">↑</button><button class="move-btn" data-action="move-sentence" data-paragraph="${paragraphNumber}" data-index="${index}" data-direction="down">↓</button>`}</div></div>`).join('')}</div>`;
     }
-    function renderDragSection() {
-      const placedIds = getPlacedIds();
-      const bankItems = DRAG_ITEMS.filter(item => !placedIds.has(item.id));
-      const correct = DRAG_ITEMS.every(item => state.dragPlacements[`p${item.paragraph}`][item.level] === item.id);
-      return `<section class="section-card" id="drag-section"><div class="section-pad"><h2 class="title">Drag-and-drop detail practice</h2><div class="subtitle">Organize three paragraph plans so each one moves from topic sentence to supporting detail to example.</div></div><div class="section-body"><div class="table-card paragraph-table"><table><thead><tr><th>Paragraph</th><th>Topic sentence</th><th>Supporting detail</th><th>Example</th></tr></thead><tbody>${[1,2,3].map(paragraph => `<tr><td><strong>Paragraph ${paragraph}</strong></td>${['topic','support','example'].map(level => { const placed = state.dragPlacements[`p${paragraph}`][level]; return `<td><div class="drop-zone" data-action="drop-zone" data-paragraph="${paragraph}" data-level="${level}">${placed ? `<div class="drag-card placed" draggable="true" data-action="drag-item" data-drag-id="${placed}">${escapeHTML(DRAG_ITEMS.find(item => item.id === placed).text)}</div>` : '<div class="subtitle">Drop here</div>'}</div></td>`; }).join("")}</tr>`).join("")}</tbody></table></div><div class="prompt-box" style="margin-top:18px"><div class="label-row">↕️ Sentence bank</div><div class="drag-bank">${bankItems.map(item => `<div class="drag-card" draggable="true" data-action="drag-item" data-drag-id="${item.id}">${escapeHTML(item.text)}</div>`).join("")}</div><div class="feedback">${bankItems.length === 0 ? (correct ? 'Correct: each paragraph now moves from topic sentence to supporting detail to example.' : 'Some sentences are in the wrong paragraph slot. Check whether each paragraph moves from broad to specific.') : 'Drag all nine sentences into the 3×3 paragraph structure table.'}</div></div></div></section>`;
+    function paragraphPracticeCorrect() {
+      return Object.entries(PARAGRAPH_PRACTICE).every(([key, original]) => state.paragraphOrders[key].map(sentence => sentence.type).join('|') === original.map(sentence => sentence.type).join('|'));
+    }
+    function renderPracticeSection() {
+      return `<section class="section-card" id="drag-section"><div class="section-pad"><h2 class="title">Sentence ordering practice</h2><div class="subtitle">Instead of drag and drop, reorder the sentences vertically so each paragraph reads from topic sentence to supporting detail to example.</div></div><div class="section-body">${[1,2,3].map(renderPracticeParagraph).join('')}<div class="prompt-box"><div class="feedback">${paragraphPracticeCorrect() ? 'Correct: each paragraph now moves from topic sentence to supporting detail to example.' : 'Use the up/down arrows to put each paragraph in the order topic → supporting detail → example.'}</div></div></div></section>`;
     }
     function renderModal() {
-      if (!state.modal) return "";
-      if (state.modal.type === "target-reveal") {
+      if (!state.modal) return '';
+      if (state.modal.type === 'target-reveal') {
         return `<div class="modal-backdrop"><div class="modal"><h3>${state.modal.museumName}: reveal the target</h3><p>Your target for this museum is <strong>${escapeHTML(state.modal.target)}</strong>.</p><p>When you press start, the search begins and the page scrolls to the top of the museum view container.</p><div class="button-row" style="margin-top:20px"><button class="btn btn-primary" data-action="start-revealed-search">Start search</button><button class="btn" data-action="close-modal">Stay here</button></div></div></div>`;
       }
       return `<div class="modal-backdrop"><div class="modal"><h3>${state.modal.museumName} complete</h3><p>You found <strong>${escapeHTML(state.modal.target)}</strong> in <strong>${formatTime(state.modal.time)}</strong>.</p><p>The item remains highlighted in the section view so students can connect the route with the final result.</p><div class="button-row" style="margin-top:20px"><button class="btn btn-primary" data-action="proceed-modal">${state.modal.allDone ? 'Go to the next section' : `Go to ${state.modal.nextMuseumName}`}</button><button class="btn" data-action="close-modal">Stay here</button></div></div></div>`;
+    }
+    function moveSentence(paragraph, index, direction) {
+      const arr = [...state.paragraphOrders[String(paragraph)]];
+      const nextIndex = direction === 'up' ? index - 1 : index + 1;
+      if (nextIndex < 0 || nextIndex >= arr.length) return;
+      if (arr[index].locked || arr[nextIndex].locked) return;
+      [arr[index], arr[nextIndex]] = [arr[nextIndex], arr[index]];
+      state.paragraphOrders[String(paragraph)] = arr;
+      render();
+    }
+    function toggleComparison(scheme, museumId, checked) {
+      const current = new Set(state.comparisonChecks[scheme] || []);
+      if (checked) current.add(museumId); else current.delete(museumId);
+      state.comparisonChecks[scheme] = [...current];
     }
     function attachEvents() {
       document.querySelectorAll('[data-action="start-game"]').forEach(btn => btn.addEventListener('click', () => prepareMuseum()));
@@ -420,34 +447,21 @@
       document.querySelectorAll('[data-action="start-revealed-search"]').forEach(btn => btn.addEventListener('click', startSearchAfterReveal));
       document.querySelectorAll('[data-action="proceed-modal"]').forEach(btn => btn.addEventListener('click', proceedFromCompletion));
       document.querySelectorAll('[data-action="close-modal"]').forEach(btn => btn.addEventListener('click', () => { state.modal = null; render(); }));
-      document.querySelectorAll('[data-action="pick-comparison"]').forEach(btn => btn.addEventListener('click', () => { state.comparisons[btn.dataset.questionId] = btn.dataset.optionId; render(); }));
-      document.querySelectorAll('[data-action="comparison-why"]').forEach(el => el.addEventListener('input', e => { state.comparisonWhy[e.target.dataset.questionId] = e.target.value; }));
-      document.querySelectorAll('[data-action="overall-difficulty"]').forEach(el => el.addEventListener('input', e => { state.overallDifficultyWhy = e.target.value; }));
+      document.querySelectorAll('[data-action="pick-museum-difficulty"]').forEach(btn => btn.addEventListener('click', () => { state.museumDifficultyRatings[btn.dataset.museumId] = Number(btn.dataset.stars); render(); }));
+      document.querySelectorAll('[data-action="toggle-comparison"]').forEach(input => input.addEventListener('change', e => { toggleComparison(e.target.dataset.scheme, e.target.dataset.museumId, e.target.checked); }));
       document.querySelectorAll('[data-action="pick-overall-stars"]').forEach(btn => btn.addEventListener('click', () => { state.paragraphOverallRating = Number(btn.dataset.stars); render(); }));
       document.querySelectorAll('[data-action="pick-sentence-stars"]').forEach(btn => btn.addEventListener('click', () => { state.sentenceRatings[Number(btn.dataset.index)] = Number(btn.dataset.stars); render(); }));
       document.querySelectorAll('[data-action="pick-structure"]').forEach(btn => btn.addEventListener('click', () => { state.structureChoice = btn.dataset.museumId; render(); }));
       document.querySelectorAll('[data-action="structure-why"]').forEach(el => el.addEventListener('input', e => { state.structureWhy = e.target.value; }));
-      document.querySelectorAll('[data-action="drag-item"]').forEach(el => {
-        el.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', el.dataset.dragId));
-        el.addEventListener('dblclick', () => { Object.keys(state.dragPlacements).forEach(paragraph => Object.keys(state.dragPlacements[paragraph]).forEach(level => { if (state.dragPlacements[paragraph][level] === el.dataset.dragId) state.dragPlacements[paragraph][level] = null; })); render(); });
-      });
-      document.querySelectorAll('[data-action="drop-zone"]').forEach(zone => {
-        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-        zone.addEventListener('drop', e => {
-          e.preventDefault(); zone.classList.remove('drag-over');
-          const dragId = e.dataTransfer.getData('text/plain');
-          Object.keys(state.dragPlacements).forEach(paragraph => Object.keys(state.dragPlacements[paragraph]).forEach(level => { if (state.dragPlacements[paragraph][level] === dragId) state.dragPlacements[paragraph][level] = null; }));
-          state.dragPlacements[`p${zone.dataset.paragraph}`][zone.dataset.level] = dragId;
-          render();
-        });
-      });
+      document.querySelectorAll('[data-action="move-sentence"]').forEach(btn => btn.addEventListener('click', () => moveSentence(btn.dataset.paragraph, Number(btn.dataset.index), btn.dataset.direction)));
     }
     function render() {
       ensureLayouts();
-      document.getElementById('app').innerHTML = `<div class="app-stack"><div class="app-shell"><aside class="panel">${renderSidebar()}</aside><main class="panel">${renderMain()}</main></div>${renderReflectionSection()}${renderWritingSection()}${renderDragSection()}${renderModal()}</div>`;
+      if (!Object.keys(state.paragraphOrders).length) state.paragraphOrders = createInitialParagraphOrders();
+      document.getElementById('app').innerHTML = `<div class="app-stack"><div class="app-shell"><aside class="panel">${renderSidebar()}</aside><main class="panel">${renderMain()}</main></div>${renderReflectionSection()}${renderWritingSection()}${renderPracticeSection()}${renderFloatingTarget()}${renderModal()}</div>`;
       attachEvents();
     }
+    state.paragraphOrders = createInitialParagraphOrders();
     ensureLayouts();
     render();
   </script>
